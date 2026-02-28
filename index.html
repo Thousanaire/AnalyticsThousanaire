@@ -20,12 +20,41 @@
 
     <!-- 🔽 FILTER BAR -->
     <section id="filters" class="filter-bar">
-        <select id="filter-program"></select>
-        <select id="filter-day"></select>
-        <select id="filter-month"></select>
-        <select id="filter-year"></select>
-        <select id="filter-quarter"></select>
-        <input type="date" id="filter-date">
+
+        <!-- Program -->
+        <select id="filter-program">
+            <option value="">Program</option>
+        </select>
+
+        <!-- Day -->
+        <select id="filter-day">
+            <option value="">Day</option>
+        </select>
+
+        <!-- Month -->
+        <select id="filter-month">
+            <option value="">Month</option>
+        </select>
+
+        <!-- Year -->
+        <select id="filter-year">
+            <option value="">Year</option>
+        </select>
+
+        <!-- Quarter -->
+        <select id="filter-quarter">
+            <option value="">Quarter</option>
+        </select>
+
+        <!-- Date Range -->
+        <div class="date-range">
+            <label>From:</label>
+            <input type="date" id="filter-date-start">
+
+            <label>To:</label>
+            <input type="date" id="filter-date-end">
+        </div>
+
     </section>
     <!-- 🔼 END FILTER BAR -->
 
