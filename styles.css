@@ -37,19 +37,19 @@ header {
 .filter-bar {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;   /* Spread evenly left → right */
+    justify-content: space-between;   /* Spread filters evenly */
     align-items: center;
     width: 100%;
-    max-width: 1200px;                /* Keeps layout clean on large screens */
-    margin: 0 auto 25px auto;         /* Center under header */
+    max-width: 1200px;                /* Keeps bar centered */
+    margin: 0 auto 25px auto;         /* Centers the entire bar */
     padding: 10px 0;
     gap: 12px;
 }
 
 .filter-bar select,
 .filter-bar input[type="date"] {
-    flex: 1;                          /* Makes all filters equal width */
-    min-width: 140px;                 /* Prevents shrinking too small */
+    flex: 1;                          /* Equal width filters */
+    min-width: 140px;                 /* Prevents tiny dropdowns */
     padding: 8px 12px;
     border-radius: 8px;
     border: 1px solid #ccc;
@@ -62,7 +62,7 @@ header {
     display: flex;
     align-items: center;
     gap: 6px;
-    flex: 1;                          /* Same width as other filters */
+    flex: 1;
     min-width: 220px;
 }
 
