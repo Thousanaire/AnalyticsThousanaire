@@ -1,0 +1,96 @@
+/* ------------------------------
+   GLOBAL STYLES
+--------------------------------*/
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: #eef1f5;
+    color: #333;
+}
+
+h1, h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: 600;
+    color: #1a1a1a;
+}
+
+/* Optional: style chart titles separately */
+.chart-title {
+    margin-top: 40px;
+    margin-bottom: 15px;
+    font-size: 22px;
+    color: #444;
+}
+
+/* ------------------------------
+   KPI GRID
+--------------------------------*/
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 18px;
+    margin-bottom: 40px;
+}
+
+.kpi-card {
+    background: linear-gradient(180deg, #ffffff 0%, #f9fafc 100%);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    text-align: center;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    border: 1px solid #e6e9ef;
+}
+
+.kpi-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+}
+
+.kpi-card h3 {
+    margin: 0;
+    font-size: 14px;
+    color: #666;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+}
+
+.kpi-card p {
+    margin-top: 12px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #1a1a1a;
+}
+
+/* ------------------------------
+   CHART WRAPPER
+--------------------------------*/
+.chart-wrapper {
+    width: 95%;
+    max-width: 1100px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    border: 1px solid #e6e9ef;
+}
+
+/* ------------------------------
+   RESPONSIVE BEHAVIOR
+--------------------------------*/
+@media (max-width: 600px) {
+    h1 {
+        font-size: 22px;
+    }
+
+    .kpi-card p {
+        font-size: 22px;
+    }
+
+    .chart-wrapper {
+        padding: 15px;
+    }
+}

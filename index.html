@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LQS Analytics Dashboard</title>
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+    <header>
+        <h1>LQS Analytics Dashboard</h1>
+    </header>
+
+    <!-- KPI Cards -->
+    <section id="kpi-container" class="kpi-grid"></section>
+
+    <!-- Chart Title -->
+    <h2 class="chart-title">Answered Contacts by Line of Business</h2>
+
+    <!-- Chart Canvas -->
+    <div class="chart-wrapper">
+        <canvas id="lobChart"></canvas>
+    </div>
+
+    <!-- Main Script -->
+    <script src="script.js"></script>
+
+</body>
+</html>

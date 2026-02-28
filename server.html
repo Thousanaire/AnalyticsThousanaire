@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>LQS Local Server</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    #warning {
+      background: #ffe5e5;
+      border: 1px solid #ff9999;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    button {
+      padding: 10px 18px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>LQS Local Dashboard Launcher</h2>
+
+  <div id="warning">
+    <strong>⚠ Service workers cannot run from file://</strong><br><br>
+    Your browser is blocking the dashboard because it must run under a local web origin.<br><br>
+    <button onclick="fixEnvironment()">Fix Automatically</button>
+  </div>
+
+  <p>Click below to start the local dashboard server:</p>
+  <button id="startBtn" onclick="start()">Start Server</button>
+
+  <script>
+    // ---------------------------------------------------
+    // 1) Detect invalid environment (file:// or null origin)
+    // ---------------------------------------------------
+    if (location.protocol === "file:" || location.origin === "null") {
+      document.getElementById("warning").style.display = "block";
+      document.getElementById("startBtn").disabled = true;
+    }
+
+    // ---------------------------------------------------
+    // 2) Auto-fix: Relaunch using a proper local origin
+    // ---------------------------------------------------
+    function fixEnvironment() {
+      alert(
+        "Your dashboard will now relaunch under a proper local origin.\n\n" +
+        "A new browser tab will open with a safe local environment."
+      );
+
+      // Relaunch under a secure local origin
+      const newUrl = "https://127.0.0.1.local/server.html";
+      window.location.href = newUrl;
+    }
+
+    // ---------------------------------------------------
+    // 3) Your original server-starting logic
+    // ---------------------------------------------------
+    async function start() {
+      try {
+        console.log("Start clicked");
+
+        const dir = await window.showDirectoryPicker();
+        const files = {};
+
+        async function readDir(directory, path = "") {
+          for await (const entry of directory.values()) {
+            const fullPath = path + "/" + entry.name;
+            if (entry.kind === "file") {
+              const file = await entry.getFile();
+              files[fullPath] = await file.text();
+            } else if (entry.kind === "directory") {
+              await readDir(entry, fullPath);
+            }
+          }
+        }
+
+        await readDir(dir);
+
+        const normalized = {};
+        for (const key in files) {
+          normalized[key.replace(/\/+/g, "/")] = files[key];
+        }
+
+        const swBlob = new Blob([`
+          const files = ${JSON.stringify(normalized)};
+
+          const mime = {
+            ".html": "text/html",
+            ".css": "text/css",
+            ".js": "application/javascript",
+            ".json": "application/json",
+            ".svg": "image/svg+xml",
+            ".png": "image/png",
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".gif": "image/gif",
+            ".webp": "image/webp"
+          };
+
+          self.addEventListener('fetch', event => {
+            const url = new URL(event.request.url);
+            let path = url.pathname.replace(/\/+/g, "/");
+
+            if (path === "/" && files["/index.html"]) {
+              event.respondWith(
+                new Response(files["/index.html"], {
+                  headers: { "Content-Type": "text/html" }
+                })
+              );
+              return;
+            }
+
+            if (files[path]) {
+              const ext = path.substring(path.lastIndexOf(".")).toLowerCase();
+              const type = mime[ext] || "text/plain";
+              event.respondWith(
+                new Response(files[path], {
+                  headers: { "Content-Type": type }
+                })
+              );
+              return;
+            }
+
+            if (files["/index.html"]) {
+              event.respondWith(
+                new Response(files["/index.html"], {
+                  headers: { "Content-Type": "text/html" }
+                })
+              );
+            }
+          });
+        `], { type: "text/javascript" });
+
+        const swUrl = URL.createObjectURL(swBlob);
+
+        const reg = await navigator.serviceWorker.register(swUrl, { scope: "/" });
+        await navigator.serviceWorker.ready;
+
+        alert("Server started! Opening dashboard...");
+        window.open("/", "_blank");
+
+      } catch (err) {
+        if (err.name === "AbortError") {
+          console.log("User canceled folder selection");
+          return;
+        }
+        console.error("Error in start():", err);
+        alert("Error starting server: " + err.message);
+      }
+    }
+  </script>
+
+</body>
+</html>
