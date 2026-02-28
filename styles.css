@@ -16,6 +16,13 @@ h1, h2 {
     color: #1a1a1a;
 }
 
+/* Thin separator line under header */
+header {
+    border-bottom: 1px solid #d0d4db;
+    padding-bottom: 12px;
+    margin-bottom: 18px;
+}
+
 /* Optional: style chart titles separately */
 .chart-title {
     margin-top: 40px;
@@ -29,16 +36,20 @@ h1, h2 {
 --------------------------------*/
 .filter-bar {
     display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    justify-content: center;
+    flex-direction: row;
+    justify-content: space-between;   /* Spread evenly left → right */
     align-items: center;
-    margin-bottom: 25px;
+    width: 100%;
+    max-width: 1200px;                /* Keeps layout clean on large screens */
+    margin: 0 auto 25px auto;         /* Center under header */
     padding: 10px 0;
+    gap: 12px;
 }
 
 .filter-bar select,
 .filter-bar input[type="date"] {
+    flex: 1;                          /* Makes all filters equal width */
+    min-width: 140px;                 /* Prevents shrinking too small */
     padding: 8px 12px;
     border-radius: 8px;
     border: 1px solid #ccc;
@@ -51,6 +62,8 @@ h1, h2 {
     display: flex;
     align-items: center;
     gap: 6px;
+    flex: 1;                          /* Same width as other filters */
+    min-width: 220px;
 }
 
 .date-range label {
@@ -129,12 +142,13 @@ h1, h2 {
     }
 
     .filter-bar {
-        flex-direction: column;
-        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
     }
 
     .date-range {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-wrap: wrap;
+        min-width: 100%;
+        justify-content: center;
     }
 }
