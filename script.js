@@ -7,9 +7,13 @@ let heatmapChart = null;
 let activeFilters = [];
 let searchTerm = '';
 
-// COMPACT DASHBOARD LAYOUT - Fit to single screen
 async function loadData() {
-    updateStatus('🔄 Loading...');
+    const statusBar = document.getElementById('status-bar');
+    if (statusBar) {
+        statusBar.classList.add('loading');
+        statusBar.textContent = '🔄 Loading data...';
+    }
+    
     try {
         const response = await fetch(SHEET_CSV_URL, { cache: "no-store" });
         const csvText = await response.text();
@@ -17,7 +21,7 @@ async function loadData() {
         return rows;
     } catch (error) {
         console.error("Error loading CSV:", error);
-        updateStatus('❌ Load failed');
+        updateStatus('❌ Failed to load data');
         return [];
     }
 }
@@ -146,30 +150,71 @@ function getDayOfWeekData(filteredRows) {
     });
     
     return dayOrder.map(day => ({
-        day: day.substring(0, 3), // Shorten to 3 letters
+        day: day.substring(0, 3),
         answered: dayTotals[day] || 0
     }));
 }
 
-function renderCompactKPIs(kpis) {
-    const container = document.getElementById("kpi-grid");
-    container.innerHTML = `
-        <div class="kpi-item"><div class="kpi-value">${kpis.answered.toLocaleString()}</div><div>Answered</div></div>
-        <div class="kpi-item"><div class="kpi-value">${kpis.offered.toLocaleString()}</div><div>Offered</div></div>
-        <div class="kpi-item"><div class="kpi-value">${kpis.abn_pct}%</div><div>Abandon %</div></div>
-        <div class="kpi-item"><div class="kpi-value">${kpis.service_level_pct}%</div><div>Service Level</div></div>
-        <div class="kpi-item"><div class="kpi-value">${kpis.aht}</div><div>AHT</div></div>
-        <div class="kpi-item"><div class="kpi-value">${kpis.asa}</div><div>ASA</div></div>
-    `;
+function groupByProgram(rows) {
+    const map = {};
+    rows.forEach(r => {
+        const program = r["Program"] || r["Programs"] || "Unknown";
+        const answered = sum([r], "ANS. #");
+        map[program] = (map[program] || 0) + answered;
+    });
+    return Object.entries(map).map(([lob, value]) => ({ lob, value }));
+}
+
+function getKpiStatus(key, value) {
+    const thresholds = { ans_pct: 80, abn_pct: 5, service_level_pct: 75 };
+    const val = parseFloat(value);
+    if (!thresholds[key]) return '';
+    
+    if (key === 'abn_pct' && val > 8) return 'danger';
+    if (key === 'ans_pct' && val < 70) return 'danger';
+    if (thresholds[key] && val >= thresholds[key]) return 'good';
+    return 'warning';
+}
+
+function formatLabel(label) {
+    const map = {
+        offered: "Offered", answered: "Answered", abandoned: "Abandoned",
+        flow_outs: "Flow Outs", holds: "# of Holds", ans_pct: "Answer %",
+        abn_pct: "Abandon %", service_level_pct: "Service Level %",
+        asa: "ASA", avg_talk_time: "Avg Talk Time", avg_hold_time: "Avg Hold Time",
+        avg_acw: "Avg ACW", aht: "Avg Handle Time"
+    };
+    return map[label] || label.replace(/_/g, " ").toUpperCase();
+}
+
+function renderKPIs(kpis) {
+    const container = document.getElementById("kpi-container");
+    if (!container) return;
+    
+    container.innerHTML = '';
+    const kpiOrder = ['answered', 'offered', 'abn_pct', 'service_level_pct', 'aht', 'asa'];
+    
+    kpiOrder.forEach(key => {
+        const card = document.createElement('div');
+        const status = getKpiStatus(key, kpis[key]);
+        card.className = `kpi-card ${status}`;
+        card.innerHTML = `
+            <h3>${formatLabel(key)}</h3>
+            <p>${kpis[key]}</p>
+        `;
+        container.appendChild(card);
+    });
 }
 
 function renderHeatmapChart(data) {
-    const ctx = document.getElementById("main-chart");
+    const canvas = document.getElementById('lobChart');
+    if (!canvas) return;
+    
     if (lobChart) lobChart.destroy();
     
     const maxValue = Math.max(...data.map(item => item.answered));
     
-    lobChart = new Chart(ctx, {
+    lobChart = new Chart(canvas, {
         type: 'bar',
         data: {
             labels: data.map(item => item.day),
@@ -183,7 +228,7 @@ function renderHeatmapChart(data) {
                 borderColor: '#1e40af',
                 borderWidth: 2,
                 borderRadius: 6,
-                barThickness: 25
+                barThickness: 30
             }]
         },
         options: {
@@ -191,46 +236,43 @@ function renderHeatmapChart(data) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        title: ctx => ctx[0].label,
-                        label: ctx => `${ctx.parsed.x.toLocaleString()} calls`
-                    }
-                }
+                legend: { display: false }
             },
             scales: {
-                x: { 
-                    display: false,
-                    min: 0,
-                    max: maxValue * 1.1
-                },
-                y: {
+                x: { display: false },
+                y: { 
                     grid: { display: false },
-                    ticks: { font: { size: 12 } }
+                    ticks: { font: { size: 13 } }
                 }
             },
-            animation: { duration: 1000 }
+            animation: {
+                duration: 1000,
+                easing: 'easeOutQuart'
+            }
         }
     });
 }
 
-function renderTrends(filteredRows) {
-    // Small trend line chart
-    const ctxTrend = document.getElementById("trend-mini");
-    if (trendChart) trendChart.destroy();
+function renderTrendChart(dayData) {
+    const canvas = document.getElementById('trendChart');
+    if (!canvas || trendChart) {
+        if (trendChart) trendChart.destroy();
+        return;
+    }
     
-    trendChart = new Chart(ctxTrend, {
+    trendChart = new Chart(canvas, {
         type: 'line',
         data: {
-            labels: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
+            labels: dayData.map(d => d.day),
             datasets: [{
-                data: data.map(d => d.answered),
+                data: dayData.map(d => d.answered),
                 borderColor: '#10b981',
-                backgroundColor: 'rgba(16, 185, 129, 0.2)',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
                 tension: 0.4,
                 fill: true,
-                pointRadius: 4
+                pointRadius: 5,
+                pointHoverRadius: 8,
+                borderWidth: 3
             }]
         },
         options: {
@@ -240,19 +282,85 @@ function renderTrends(filteredRows) {
             scales: {
                 x: { display: false },
                 y: { display: false }
+            },
+            elements: {
+                point: { hoverBackgroundColor: '#059669' }
             }
         }
     });
 }
 
+function renderServiceLevelChart(kpis) {
+    const canvas = document.getElementById('heatmapChart');
+    if (!canvas || heatmapChart) {
+        if (heatmapChart) heatmapChart.destroy();
+        return;
+    }
+    
+    heatmapChart = new Chart(canvas, {
+        type: 'doughnut',
+        data: {
+            labels: ['Service Level', 'Abandon Rate'],
+            datasets: [{
+                data: [kpis.service_level_pct, kpis.abn_pct],
+                backgroundColor: ['#10b981', '#ef4444'],
+                borderWidth: 0,
+                cutout: '70%'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.label}: ${context.parsed}%`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+function renderInsights(lobData) {
+    const container = document.getElementById("insights-table");
+    if (!container) return;
+    
+    const top = lobData.sort((a,b) => b.value - a.value).slice(0,3);
+    const bottom = lobData.sort((a,b) => a.value - b.value).slice(0,3);
+    
+    container.innerHTML = `
+        <table>
+            <thead>
+                <tr><th>Top LOBs</th><th>Answered</th><th>Bottom LOBs</th><th>Answered</th></tr>
+            </thead>
+            <tbody>
+                ${top.map((item, i) => `
+                    <tr>
+                        <td class="top-performer">${item.lob}</td>
+                        <td>${item.value.toLocaleString()}</td>
+                        <td class="worst-performer">${bottom[i]?.lob || '-'}</td>
+                        <td>${bottom[i]?.value?.toLocaleString() || 0}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+}
+
 function getFilteredData() {
     let filtered = [...allRows];
     
-    // Apply filters (shortened for brevity)
     activeFilters.forEach(f => {
         filtered = filtered.filter(r => {
             if (f.type === 'program') return (r["Program"] || r["Programs"]) === f.value;
             if (f.type === 'day') return r["Day"] === f.value;
+            if (f.type === 'month') return r["Month"] === f.value;
+            if (f.type === 'year') return r["Year"] === f.value;
+            if (f.type === 'quarter') return r["Quarters"] === f.value;
             return true;
         });
     });
@@ -283,49 +391,198 @@ function renderDashboard() {
     const filtered = getFilteredData();
     const kpis = calculateKPIs(filtered);
     const dayData = getDayOfWeekData(filtered);
+    const lobData = groupByProgram(filtered);
     
-    renderCompactKPIs(kpis);
+    renderKPIs(kpis);
     renderHeatmapChart(dayData);
-    renderTrends(dayData);
-    updateStatus(`📊 ${filtered.length} records | Total: ${kpis.answered.toLocaleString()}`);
+    renderTrendChart(dayData);
+    renderServiceLevelChart(kpis);
+    renderInsights(lobData);
+    checkAlerts(kpis);
+    updateStatus(`✅ ${filtered.length} records | Answered: ${kpis.answered.toLocaleString()} | ${new Date().toLocaleTimeString()}`);
 }
 
 function updateStatus(message) {
-    document.getElementById('status-bar') && (document.getElementById('status-bar').textContent = message);
+    const statusBar = document.getElementById('status-bar');
+    if (statusBar) {
+        statusBar.textContent = message;
+        statusBar.classList.remove('loading');
+    }
 }
 
-// Simplified init - auto-fits screen
-loadData().then(rows => {
-    if (!rows?.length) return;
-    allRows = rows;
-    renderDashboard();
-    updateStatus(`✅ ${rows.length} records loaded`);
+function checkAlerts(kpis) {
+    const alerts = [];
+    if (kpis.abn_pct > 8) alerts.push('🚨 High Abandon Rate Detected!');
+    if (kpis.service_level_pct < 70) alerts.push('⚠️ Service Level Below Target');
+    if (kpis.ans_pct < 75) alerts.push('📉 Low Answer Rate');
     
-    // Auto refresh
-    setInterval(() => loadData().then(r => { allRows = r; renderDashboard(); }), 300000);
-});
-
-// Add CSS for compact layout (add to your HTML <head>)
-const style = document.createElement('style');
-style.textContent = `
-body { 
-    margin: 0; padding: 10px; font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; 
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh;
+    const container = document.getElementById('alerts-container');
+    if (container) {
+        container.innerHTML = alerts.map(a => `<div class="alert">${a}</div>`).join('') || '';
+    }
 }
-#dashboard { max-width: 1400px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: auto 1fr auto; gap: 15px; height: 95vh; }
-#header { grid-column: 1 / -1; background: rgba(255,255,255,0.95); padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
-#kpi-grid { grid-column: 1; display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; background: rgba(255,255,255,0.95); padding: 15px; border-radius: 12px; }
-.kpi-item { text-align: center; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-.kpi-value { font-size: 24px; font-weight: 700; color: #1e40af; margin-bottom: 4px; }
-#main-chart { grid-column: 2; background: rgba(255,255,255,0.95); padding: 15px; border-radius: 12px; height: 100%; }
-#sidebar { grid-column: 3; display: flex; flex-direction: column; gap: 15px; }
-#trend-mini, .mini-chart { background: rgba(255,255,255,0.95); padding: 15px; border-radius: 12px; height: 120px; }
-#bottom-stats { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: 10px; }
-.stat-card { background: rgba(255,255,255,0.95); padding: 12px; border-radius: 8px; text-align: center; }
-#status-bar { background: rgba(0,0,0,0.8); color: white; padding: 8px; border-radius: 6px; font-size: 14px; grid-column: 1 / -1; }
-canvas { max-height: 100%; }
-@media (max-width: 1200px) { #dashboard { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr auto auto; } }
-`;
-document.head.appendChild(style);
-`;
-document.head.appendChild(style);
+
+function populateFilters(rows) {
+    const selects = {
+        'filter-program': new Set(),
+        'filter-day': new Set(),
+        'filter-month': new Set(),
+        'filter-year': new Set(),
+        'filter-quarter': new Set()
+    };
+    
+    rows.forEach(r => {
+        selects['filter-program'].add(r["Program"] || r["Programs"] || '');
+        selects['filter-day'].add(r["Day"] || '');
+        selects['filter-month'].add(r["Month"] || '');
+        selects['filter-year'].add(r["Year"] || '');
+        selects['filter-quarter'].add(r["Quarters"] || '');
+    });
+
+    Object.entries(selects).forEach(([id, values]) => {
+        const select = document.getElementById(id);
+        if (select) {
+            const sortedValues = Array.from(values).filter(v => v).sort();
+            select.innerHTML = `<option value="">${id.replace('filter-', '')}</option>` + 
+                sortedValues.map(v => `<option value="${v}">${v}</option>`).join('');
+        }
+    });
+}
+
+function addFilter(type, value, label) {
+    if (!activeFilters.find(f => f.type === type && f.value === value)) {
+        activeFilters.push({ type, value, label });
+        updateActiveFilters();
+        renderDashboard();
+    }
+}
+
+function removeFilter(type, value) {
+    activeFilters = activeFilters.filter(f => !(f.type === type && f.value === value));
+    updateActiveFilters();
+    renderDashboard();
+}
+
+function updateActiveFilters() {
+    const container = document.getElementById("active-filters");
+    if (!container) return;
+    
+    if (activeFilters.length === 0) {
+        container.innerHTML = '';
+        return;
+    }
+    container.innerHTML = activeFilters.map(f => 
+        `<span class="filter-tag" onclick="removeFilter('${f.type}', '${f.value.replace(/'/g, "\\'")}')">${f.label} ✕</span>`
+    ).join('');
+}
+
+// EXPORT FUNCTIONS
+function download(filename, text) {
+    const element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.click();
+    document.body.removeChild(element);
+}
+
+function exportCSV() {
+    const filtered = getFilteredData();
+    if (!filtered.length) return;
+    const headers = Object.keys(filtered[0]);
+    const csv = [headers.join(','), 
+        ...filtered.map(row => headers.map(h => `"${row[h] || ''}"`).join(','))].join('\n');
+    download(`dashboard-${new Date().toISOString().split('T')[0]}.csv`, csv);
+}
+
+function exportPDF() {
+    window.print();
+}
+
+function exportImage() {
+    html2canvas(document.body, { 
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#f5f7fa'
+    }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `dashboard-${Date.now()}.png`;
+        link.href = canvas.toDataURL();
+        link.click();
+    });
+}
+
+function attachEvents() {
+    // Quick search
+    const searchEl = document.getElementById('quick-search');
+    if (searchEl) {
+        searchEl.addEventListener('input', (e) => {
+            searchTerm = e.target.value;
+            renderDashboard();
+        });
+    }
+
+    // Filter selects
+    ['filter-program', 'filter-day', 'filter-month', 'filter-year', 'filter-quarter'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('change', (e) => {
+                const type = e.target.id.replace('filter-', '');
+                if (e.target.value) {
+                    addFilter(type, e.target.value, e.target.options[e.target.selectedIndex].text);
+                } else {
+                    // Clear filter if deselected
+                    removeFilter(type, e.target.dataset.lastValue || '');
+                }
+                e.target.dataset.lastValue = e.target.value;
+            });
+        }
+    });
+
+    // Date filters
+    ['filter-date-start', 'filter-date-end'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('change', () => renderDashboard());
+        }
+    });
+
+    // Reset button
+    const resetEl = document.getElementById('filter-reset');
+    if (resetEl) {
+        resetEl.addEventListener('click', () => {
+            activeFilters = [];
+            searchTerm = '';
+            document.querySelectorAll('#control-bar select, #quick-search, .date-controls input').forEach(el => {
+                el.value = '';
+                if (el.tagName === 'SELECT') el.dataset.lastValue = '';
+            });
+            updateActiveFilters();
+            renderDashboard();
+        });
+    }
+}
+
+// INITIALIZATION
+loadData().then(rows => {
+    if (!rows || rows.length === 0) {
+        updateStatus('❌ No data loaded');
+        return;
+    }
+    
+    allRows = rows;
+    populateFilters(allRows);
+    attachEvents();
+    renderDashboard();
+    updateStatus(`✅ Loaded ${rows.length} records | Ready`);
+    
+    // Auto-refresh every 5 minutes
+    setInterval(() => {
+        loadData().then(newRows => {
+            allRows = newRows;
+            populateFilters(allRows);
+            renderDashboard();
+        });
+    }, 5 * 60 * 1000);
+});
