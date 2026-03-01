@@ -13,7 +13,7 @@ html, body {
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-    background: #ffffff;
+    background: radial-gradient(circle at top left, #111827 0, #020617 45%, #020617 100%);
     color: #e5e7eb;
 }
 
@@ -117,82 +117,29 @@ body {
     background: #030712;
 }
 
-/* Updated date controls - date picker box/icon now clearly visible */
 .date-controls {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 8px 12px;
-    border-radius: 12px;
-    background: rgba(17, 24, 39, 0.95);
-    border: 2px solid rgba(59, 130, 246, 0.6);
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-    min-width: 220px;
-    position: relative;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.9);
+    border: 1px solid rgba(55, 65, 81, 0.8);
 }
 
 .date-controls span {
-    font-size: 12px;
-    color: #e5e7eb;
-    font-weight: 500;
-    white-space: nowrap;
+    font-size: 11px;
+    color: #9ca3af;
 }
 
-.date-controls input[type="date"] {
-    padding: 6px 10px 6px 10px;
-    border-radius: 8px;
-    border: 1px solid rgba(59, 130, 246, 0.8);
-    background: rgba(2, 6, 23, 0.98);
-    color: #f9fafb !important;
-    font-size: 12px;
-    min-width: 140px;
-    font-weight: 500;
-    cursor: pointer;
-    position: relative;
-}
-
-/* Make native date picker icon/arrow VISIBLE (Chrome/Safari/Webkit) */
-.date-controls input[type="date"]::-webkit-calendar-picker-indicator {
-    opacity: 1 !important;
-    filter: brightness(1.2) invert(1) !important; /* Makes it white/visible */
-    cursor: pointer !important;
-    padding: 4px;
-    margin: 0;
-    width: 20px;
-    height: 20px;
-    position: absolute;
-    right: 4px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: rgba(59, 130, 246, 0.8);
-    border-radius: 4px;
-}
-
-/* Firefox date picker button visibility */
-.date-controls input[type="date"]::-moz-calendar-picker-indicator {
-    opacity: 1 !important;
-    cursor: pointer !important;
-}
-
-/* Edge date picker */
-@supports (-ms-ime-align: auto) {
-    .date-controls input[type="date"]::-ms-clear,
-    .date-controls input[type="date"]::-ms-reveal {
-        opacity: 1 !important;
-        color: #3b82f6 !important;
-    }
-}
-
-.date-controls input[type="date"]:focus {
-    outline: none;
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+.date-controls input {
+    padding: 5px 9px;
+    border-radius: 999px;
+    border: 1px solid #4b5563;
     background: #020617;
-}
-
-.date-controls input[type="date"]:hover {
-    background: rgba(3, 7, 18, 0.98);
-    border-color: rgba(96, 165, 250, 0.8);
+    color: #f9fafb;
+    font-size: 11px;
+    min-width: 120px;
 }
 
 #filter-reset {
@@ -210,18 +157,6 @@ body {
 #filter-reset:hover {
     transform: translateY(-1px);
     box-shadow: 0 10px 18px rgba(59, 130, 246, 0.55);
-}
-
-/* Data loaded date/time display */
-.data-loaded-info {
-    font-size: 11px;
-    color: #9ca3af;
-    font-weight: 500;
-    padding: 4px 8px;
-    background: rgba(15, 23, 42, 0.8);
-    border-radius: 6px;
-    border: 1px solid rgba(75, 85, 99, 0.5);
-    white-space: nowrap;
 }
 
 /* ------------------------------
@@ -549,22 +484,12 @@ body {
         width: 100%;
         justify-content: flex-start;
         flex-wrap: wrap;
-        min-width: auto;
     }
 }
 
 @media (max-width: 480px) {
     .top-left h1 {
         font-size: 18px;
-    }
-
-    .date-controls {
-        min-width: 180px;
-    }
-
-    .date-controls input[type="date"]::-webkit-calendar-picker-indicator {
-        width: 18px;
-        height: 18px;
     }
 }
 
