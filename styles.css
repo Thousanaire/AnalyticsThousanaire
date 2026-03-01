@@ -13,7 +13,7 @@ html, body {
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-    background: radial-gradient(circle at top left, #111827 0, #020617 45%, #020617 100%);
+    background: #ffffff;
     color: #e5e7eb;
 }
 
@@ -567,3 +567,4 @@ body {
         height: 18px;
     }
 }
+
