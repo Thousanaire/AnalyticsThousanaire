@@ -62,13 +62,37 @@ header {
     display: flex;
     align-items: center;
     gap: 6px;
-    flex: 1;
-    min-width: 220px;
+    flex: 1.4;                        /* Slightly wider to fit button */
+    min-width: 260px;
 }
 
 .date-range label {
     font-size: 14px;
     color: #444;
+}
+
+/* Reset button */
+#filter-reset {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid #d0d4db;
+    background: #f5f6fa;
+    color: #333;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.1s ease;
+    white-space: nowrap;
+}
+
+#filter-reset:hover {
+    background: #e3e6f0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+    transform: translateY(-1px);
+}
+
+#filter-reset:active {
+    transform: translateY(0);
+    box-shadow: none;
 }
 
 /* ------------------------------
@@ -150,5 +174,11 @@ header {
         flex-wrap: wrap;
         min-width: 100%;
         justify-content: center;
+    }
+
+    #filter-reset {
+        width: 100%;
+        text-align: center;
+        margin-top: 6px;
     }
 }
