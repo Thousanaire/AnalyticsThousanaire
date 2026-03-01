@@ -26,7 +26,7 @@ async function loadData() {
         const csvText = await response.text();
         const rows = parseCSV(csvText);
 
-        // ✅ CHANGE #2: Updated timestamp message
+        // ✅ UPDATED TIMESTAMP BLOCK (CHANGE #2)
         if (statusPill) {
             const now = new Date().toLocaleString('en-US', { 
                 year: 'numeric', 
@@ -110,21 +110,18 @@ function parseCSV(csv) {
 // ---------------------------------------------
 function toHHMMSS(seconds) {
     seconds = Math.floor(seconds);
-
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
     const s = seconds % 60;
-
     return `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
 
 // ---------------------------------------------
-// DATE PARSER (supports MM/DD/YYYY and YYYY-MM-DD)
+// DATE PARSER
 // ---------------------------------------------
 function parseSheetDate(value) {
     if (!value) return null;
-
     const str = String(value).trim();
 
     if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
@@ -137,22 +134,16 @@ function parseSheetDate(value) {
     const datePart = str.split(" ")[0].trim();
     const parts = datePart.split("/");
     if (parts.length !== 3) return null;
-
     let [m, d, y] = parts.map(p => p.trim());
-    m = Number(m);
-    d = Number(d);
-    y = Number(y);
-
+    m = Number(m); d = Number(d); y = Number(y);
     if (y < 100) y = 2000 + y;
-
     const dt = new Date(y, m - 1, d);
     return isNaN(dt.getTime()) ? null : dt;
 }
 
 
-// ---------------------------------------------
-// ... (Everything else unchanged until showAlert)
-// ---------------------------------------------
+// ... (All other existing functions remain unchanged up to showAlert)
+
 
 
 // Simple toast alert
@@ -173,9 +164,9 @@ function showAlert(message) {
 }
 
 
-// ---------------------------------------------
-// ✅ CHANGE #1: EXPORT BUTTONS (NEW)
-// ---------------------------------------------
+// ------------------------------
+// EXPORT BUTTONS (NEW) ✅ (CHANGE #1)
+// ------------------------------
 function attachExportEvents() {
     const pngBtn = document.getElementById("download-png");
     const pdfBtn = document.getElementById("download-pdf");
@@ -193,7 +184,7 @@ function downloadPNG() {
         return;
     }
 
-    const canvas = canvases[0];  // LOB chart
+    const canvas = canvases[0]; 
     const link = document.createElement('a');
     link.download = `LQS_Dashboard_${new Date().toISOString().slice(0,10)}.png`;
     link.href = canvas.toDataURL('image/png');
@@ -207,16 +198,15 @@ function downloadPDF() {
 
 
 // ---------------------------------------------
-// 8) INITIALIZE DASHBOARD
+// 8) INITIALIZE DASHBOARD (UPDATED ✅ CHANGE #3)
 // ---------------------------------------------
 loadData().then(rows => {
     if (!rows || rows.length === 0) return;
 
     allRows = rows;
-
     populateFilters(allRows);
     attachFilterEvents();
-    attachExportEvents();  // ✅ CHANGE #3: Added export buttons
+    attachExportEvents();  // <--- Added line
 
     const initialKpis = calculateKPIs(allRows);
     renderKPIs(initialKpis);
