@@ -24,56 +24,49 @@ async function loadData() {
 
 
 // ---------------------------------------------
-// 2B) Robust CSV Parser + Header Normalizer
+// 2B) NEW ROBUST CSV PARSER (handles commas, quotes, breaks)
 // ---------------------------------------------
 function parseCSV(csv) {
-    csv = csv.replace(/^\uFEFF/, ""); // Remove BOM
-
-    const lines = csv.split(/\r?\n/).filter(line => line.trim() !== "");
-    const rawHeaders = parseCSVRow(lines[0]);
-
-    const headers = rawHeaders.map(h =>
-        h.replace(/"/g, "").replace(/\r/g, "").trim()
-    );
-
     const rows = [];
-
-    for (let i = 1; i < lines.length; i++) {
-        const values = parseCSVRow(lines[i]);
-        const row = {};
-
-        headers.forEach((header, index) => {
-            const cleanHeader = header.trim();
-            const cleanValue = (values[index] || "")
-                .replace(/"/g, "")
-                .replace(/\r/g, "")
-                .trim();
-
-            row[cleanHeader] = cleanValue;
-        });
-
-        rows.push(row);
-    }
-
-    return rows;
-}
-
-function parseCSVRow(line) {
-    const result = [];
+    let row = [];
     let current = "";
     let insideQuotes = false;
 
-    for (let char of line) {
-        if (char === '"' && !insideQuotes) insideQuotes = true;
-        else if (char === '"' && insideQuotes) insideQuotes = false;
-        else if (char === "," && !insideQuotes) {
-            result.push(current);
+    for (let i = 0; i < csv.length; i++) {
+        const char = csv[i];
+        const next = csv[i + 1];
+
+        if (char === '"' && insideQuotes && next === '"') {
+            current += '"';
+            i++;
+        } else if (char === '"') {
+            insideQuotes = !insideQuotes;
+        } else if (char === ',' && !insideQuotes) {
+            row.push(current);
             current = "";
-        } else current += char;
+        } else if ((char === '\n' || char === '\r') && !insideQuotes) {
+            if (current.length > 0 || row.length > 0) {
+                row.push(current);
+                rows.push(row);
+                row = [];
+                current = "";
+            }
+        } else {
+            current += char;
+        }
     }
 
-    result.push(current);
-    return result;
+    if (current.length > 0 || row.length > 0) {
+        row.push(current);
+        rows.push(row);
+    }
+
+    const headers = rows.shift().map(h => h.trim());
+    return rows.map(cols => {
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = cols[i] || "");
+        return obj;
+    });
 }
 
 
@@ -109,7 +102,7 @@ function calculateKPIs(rows) {
     const abandoned = sum(rows, "ABD #");
     const flowOuts = sum(rows, "FLOW OUTS");
 
-    const holds = sum(rows, "# of HOLDS");
+    const holds = sum(rows, "HOLDS") + sum(rows, "# of HOLDS");
 
     const totalWait = sum(rows, "Wait time");
     const timeToAbandon = sum(rows, "TIME TO ABANDON");
@@ -382,5 +375,3 @@ loadData().then(rows => {
     renderKPIs(calculateKPIs(allRows));
     renderLOBChart(groupByProgram(allRows));
 });
-
-
