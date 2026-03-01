@@ -6,6 +6,9 @@ const SHEET_CSV_URL =
 
 let allRows = [];
 let lobChart = null;
+let volumeTrendChart = null;
+let slAbnTrendChart = null;
+let ahtChart = null;
 
 
 // ---------------------------------------------
@@ -56,14 +59,18 @@ function parseCSV(csv) {
         const next = csv[i + 1];
 
         if (char === '"' && insideQuotes && next === '"') {
+            // Escaped quote
             current += '"';
             i++;
         } else if (char === '"') {
+            // Toggle quote mode
             insideQuotes = !insideQuotes;
         } else if (char === ',' && !insideQuotes) {
+            // Column separator
             row.push(current);
             current = "";
         } else if ((char === '\n' || char === '\r') && !insideQuotes) {
+            // Row separator
             if (current.length > 0 || row.length > 0) {
                 row.push(current);
                 rows.push(row);
@@ -75,6 +82,7 @@ function parseCSV(csv) {
         }
     }
 
+    // Push last cell / row
     if (current.length > 0 || row.length > 0) {
         row.push(current);
         rows.push(row);
@@ -108,13 +116,14 @@ function toHHMMSS(seconds) {
 
 
 // ---------------------------------------------
-// DATE PARSER (MM/DD/YYYY or YYYY-MM-DD)
+// DATE PARSER (supports MM/DD/YYYY and YYYY-MM-DD)
 // ---------------------------------------------
 function parseSheetDate(value) {
     if (!value) return null;
 
     const str = String(value).trim();
 
+    // ISO-like export (yyyy-mm-dd or yyyy-mm-dd hh:mm:ss)
     if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
         const [ymd] = str.split(" ");
         const [y, m, d] = ymd.split("-").map(Number);
@@ -122,6 +131,7 @@ function parseSheetDate(value) {
         return isNaN(dt.getTime()) ? null : dt;
     }
 
+    // mm/dd/yy or mm/dd/yyyy
     const datePart = str.split(" ")[0].trim();
     const parts = datePart.split("/");
     if (parts.length !== 3) return null;
@@ -139,7 +149,7 @@ function parseSheetDate(value) {
 
 
 // ---------------------------------------------
-// 3) KPI CALCULATIONS
+// 3) KPI CALCULATIONS (SECONDS → HH:MM:SS)
 // ---------------------------------------------
 function calculateKPIs(rows) {
     const offered = sum(rows, "OFFERED");
@@ -154,6 +164,7 @@ function calculateKPIs(rows) {
 
     const ansUnder30 = sum(rows, "TOTAL ANS < 30 SEC.");
 
+    // These are already in SECONDS
     const talkTime = sum(rows, "Talk Time");
     const holdTime = sum(rows, "Hold Time");
     const acwTime = sum(rows, "ACW Time");
@@ -163,6 +174,7 @@ function calculateKPIs(rows) {
     const abnPct = offered ? (abandoned / offered) * 100 : 0;
     const slPct = answered ? (ansUnder30 / answered) * 100 : 0;
 
+    // Averages (seconds → HH:MM:SS)
     const asaSec = answered ? (totalWait - timeToAbandon) / answered : 0;
     const avgTalkSec = answered ? talkTime / answered : 0;
     const avgHoldSec = answered ? holdTime / answered : 0;
@@ -190,13 +202,13 @@ function calculateKPIs(rows) {
     };
 }
 
-
-// Sanitizing numeric strings from CSV
+// Sanitizing numeric strings from CSV (handles commas, %, currency, etc.)
 function sum(rows, col) {
     return rows.reduce((total, r) => {
         let raw = r[col] ?? "";
         raw = String(raw).trim();
 
+        // Strip non-numeric except digits, dot, minus
         let cleaned = raw.replace(/[^0-9.\-]/g, "");
         if (cleaned === "" || cleaned === "-" || cleaned === "." || cleaned === "-.") {
             return total;
@@ -209,17 +221,17 @@ function sum(rows, col) {
 
 
 // ---------------------------------------------
-// 4) GROUP BY PROGRAM
+// 4) GROUP BY BUSINESS (was Program)
 // ---------------------------------------------
-function groupByProgram(rows) {
+function groupByBusiness(rows) {
     const map = {};
 
     rows.forEach(r => {
-        const program = r["Program"] || r["Programs"] || "Unknown";
+        const business = r["Business"] || r["Program"] || r["Programs"] || "Unknown";
         const answered = sum([r], "ANS. #");
 
-        if (!map[program]) map[program] = 0;
-        map[program] += answered;
+        if (!map[business]) map[business] = 0;
+        map[business] += answered;
     });
 
     return Object.entries(map).map(([lob, value]) => ({ lob, value }));
@@ -227,7 +239,7 @@ function groupByProgram(rows) {
 
 
 // ---------------------------------------------
-// 5) RENDER KPI CARDS (with states)
+// 5) RENDER KPI CARDS
 // ---------------------------------------------
 function renderKPIs(kpis) {
     const container = document.getElementById("kpi-container");
@@ -253,7 +265,6 @@ function renderKPIs(kpis) {
         }
 
         if (key === "asa") {
-            // Lower ASA is better; simple heuristic based on seconds
             const seconds = hmsToSeconds(String(value));
             if (seconds <= 20) card.classList.add("good");
             else if (seconds <= 40) card.classList.add("warning");
@@ -298,12 +309,12 @@ function formatLabel(label) {
 
 
 // ---------------------------------------------
-// 6) RENDER BAR CHART
+// 6) RENDER BAR CHART (Answered by Business)
 // ---------------------------------------------
 function renderLOBChart(data) {
     const ctx = document.getElementById("lobChart");
-    if (!ctx) return;
 
+    if (!ctx) return;
     if (lobChart) lobChart.destroy();
 
     lobChart = new Chart(ctx, {
@@ -322,38 +333,277 @@ function renderLOBChart(data) {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    mode: "index",
-                    intersect: false
-                }
+                legend: { display: false },
+                tooltip: { mode: "index", intersect: false }
             },
             layout: {
-                padding: {
-                    top: 8,
-                    right: 8,
-                    bottom: 8,
-                    left: 8
+                padding: { top: 8, right: 8, bottom: 8, left: 8 }
+            },
+            scales: {
+                x: {
+                    ticks: { autoSkip: false, maxRotation: 45, minRotation: 0, color: "#9ca3af" },
+                    grid: { display: false }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: "#9ca3af" },
+                    grid: { color: "rgba(31, 41, 55, 0.7)" }
+                }
+            }
+        }
+    });
+}
+
+
+// ---------------------------------------------
+// 6B) DAILY AGG (for time series)
+// ---------------------------------------------
+function buildDailyAgg(rows) {
+    const map = {};
+
+    rows.forEach(r => {
+        const d = parseSheetDate(r["DATE"]);
+        if (!d) return;
+        const key = d.toISOString().slice(0, 10); // yyyy-mm-dd
+
+        if (!map[key]) {
+            map[key] = {
+                offered: 0,
+                answered: 0,
+                abandoned: 0,
+                ansUnder30: 0,
+                flowOuts: 0,
+                talkTime: 0,
+                holdTime: 0,
+                acwTime: 0,
+                handleTime: 0
+            };
+        }
+
+        const bucket = map[key];
+        bucket.offered += sum([r], "OFFERED");
+        bucket.answered += sum([r], "ANS. #");
+        bucket.abandoned += sum([r], "ABD #");
+        bucket.ansUnder30 += sum([r], "TOTAL ANS < 30 SEC.");
+        bucket.flowOuts += sum([r], "FLOW OUTS");
+        bucket.talkTime += sum([r], "Talk Time");
+        bucket.holdTime += sum([r], "Hold Time");
+        bucket.acwTime += sum([r], "ACW Time");
+        bucket.handleTime += sum([r], "Handle Time");
+    });
+
+    const days = Object.keys(map).sort();
+    return days.map(date => {
+        const b = map[date];
+        const slPct = b.answered ? (b.ansUnder30 / b.answered) * 100 : 0;
+        const abnPct = b.offered ? (b.abandoned / b.offered) * 100 : 0;
+        const ahtSec = b.answered ? b.handleTime / b.answered : 0;
+
+        return {
+            date,
+            offered: b.offered,
+            answered: b.answered,
+            abandoned: b.abandoned,
+            slPct,
+            abnPct,
+            ahtSec
+        };
+    });
+}
+
+
+// ---------------------------------------------
+// 6C) Volume Trend Chart
+// ---------------------------------------------
+function renderVolumeTrendChart(rows) {
+    const ctx = document.getElementById("volumeTrendChart");
+    if (!ctx) return;
+
+    const daily = buildDailyAgg(rows);
+
+    if (volumeTrendChart) volumeTrendChart.destroy();
+
+    volumeTrendChart = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: daily.map(d => d.date),
+            datasets: [
+                {
+                    label: "Offered",
+                    data: daily.map(d => d.offered),
+                    borderColor: "rgba(59, 130, 246, 1)",
+                    backgroundColor: "rgba(59, 130, 246, 0.2)",
+                    tension: 0.25,
+                    fill: true
+                },
+                {
+                    label: "Answered",
+                    data: daily.map(d => d.answered),
+                    borderColor: "rgba(16, 185, 129, 1)",
+                    backgroundColor: "rgba(16, 185, 129, 0.15)",
+                    tension: 0.25,
+                    fill: true
+                },
+                {
+                    label: "Abandoned",
+                    data: daily.map(d => d.abandoned),
+                    borderColor: "rgba(239, 68, 68, 1)",
+                    backgroundColor: "rgba(239, 68, 68, 0.1)",
+                    tension: 0.25,
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: true, labels: { color: "#e5e7eb", boxWidth: 10 } },
+                tooltip: { mode: "index", intersect: false }
+            },
+            scales: {
+                x: {
+                    ticks: { color: "#9ca3af", maxRotation: 0, autoSkip: true },
+                    grid: { color: "rgba(31, 41, 55, 0.7)" }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: "#9ca3af" },
+                    grid: { color: "rgba(31, 41, 55, 0.7)" }
+                }
+            }
+        }
+    });
+}
+
+
+// ---------------------------------------------
+// 6D) Service Level & Abandon % Trend
+// ---------------------------------------------
+function renderSLAbnTrendChart(rows) {
+    const ctx = document.getElementById("slAbnTrendChart");
+    if (!ctx) return;
+
+    const daily = buildDailyAgg(rows);
+
+    if (slAbnTrendChart) slAbnTrendChart.destroy();
+
+    slAbnTrendChart = new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: daily.map(d => d.date),
+            datasets: [
+                {
+                    label: "Service Level %",
+                    data: daily.map(d => Math.round(d.slPct)),
+                    borderColor: "rgba(96, 165, 250, 1)",
+                    backgroundColor: "rgba(96, 165, 250, 0.1)",
+                    tension: 0.25,
+                    yAxisID: "y1"
+                },
+                {
+                    label: "Abandon %",
+                    data: daily.map(d => Math.round(d.abnPct)),
+                    borderColor: "rgba(248, 113, 113, 1)",
+                    backgroundColor: "rgba(248, 113, 113, 0.1)",
+                    tension: 0.25,
+                    yAxisID: "y2"
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: true, labels: { color: "#e5e7eb", boxWidth: 10 } },
+                tooltip: { mode: "index", intersect: false }
+            },
+            scales: {
+                x: {
+                    ticks: { color: "#9ca3af", maxRotation: 0, autoSkip: true },
+                    grid: { color: "rgba(31, 41, 55, 0.7)" }
+                },
+                y1: {
+                    type: "linear",
+                    position: "left",
+                    beginAtZero: true,
+                    ticks: { color: "#9ca3af", callback: v => v + "%" }
+                },
+                y2: {
+                    type: "linear",
+                    position: "right",
+                    beginAtZero: true,
+                    ticks: { color: "#9ca3af", callback: v => v + "%" },
+                    grid: { drawOnChartArea: false }
+                }
+            }
+        }
+    });
+}
+
+
+// ---------------------------------------------
+// 6E) AHT by Business Chart
+// ---------------------------------------------
+function buildAHTByBusinessData(rows) {
+    const map = {};
+
+    rows.forEach(r => {
+        const business = r["Business"] || r["Program"] || r["Programs"] || "Unknown";
+        const answered = sum([r], "ANS. #");
+        const handleTime = sum([r], "Handle Time");
+
+        if (!map[business]) map[business] = { answered: 0, handleTime: 0 };
+        map[business].answered += answered;
+        map[business].handleTime += handleTime;
+    });
+
+    return Object.entries(map).map(([business, agg]) => ({
+        business,
+        ahtSec: agg.answered ? agg.handleTime / agg.answered : 0
+    }));
+}
+
+function renderAHTChart(rows) {
+    const ctx = document.getElementById("ahtChart");
+    if (!ctx) return;
+
+    const data = buildAHTByBusinessData(rows);
+
+    if (ahtChart) ahtChart.destroy();
+
+    ahtChart = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: data.map(d => d.business),
+            datasets: [{
+                label: "AHT (sec)",
+                data: data.map(d => Math.round(d.ahtSec)),
+                backgroundColor: "rgba(16, 185, 129, 0.9)",
+                borderRadius: 6,
+                maxBarThickness: 32
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: ctx => `AHT: ${ctx.formattedValue} sec`
+                    }
                 }
             },
             scales: {
                 x: {
-                    ticks: {
-                        autoSkip: false,
-                        maxRotation: 45,
-                        minRotation: 0
-                    },
-                    grid: {
-                        display: false
-                    }
+                    ticks: { color: "#9ca3af" },
+                    grid: { display: false }
                 },
                 y: {
                     beginAtZero: true,
-                    grid: {
-                        color: "rgba(209, 213, 219, 0.4)"
-                    }
+                    ticks: { color: "#9ca3af" },
+                    grid: { color: "rgba(31, 41, 55, 0.7)" }
                 }
             }
         }
@@ -381,8 +631,9 @@ function populateFilters(rows) {
     const dates = [];
 
     rows.forEach(r => {
-        if (r["Program"] || r["Programs"]) {
-            programs.add(r["Program"] || r["Programs"]);
+        if (r["Business"] || r["Program"] || r["Programs"]) {
+            const b = r["Business"] || r["Program"] || r["Programs"];
+            programs.add(b);
         }
         if (r["Day"]) days.add(r["Day"]);
         if (r["Month"]) months.add(r["Month"]);
@@ -395,7 +646,7 @@ function populateFilters(rows) {
         }
     });
 
-    fillSelect(programSelect, Array.from(programs).sort(), "Program");
+    fillSelect(programSelect, Array.from(programs).sort(), "Business");
     fillSelect(daySelect, Array.from(days).sort((a, b) => Number(a) - Number(b)), "Day");
     fillSelect(monthSelect, Array.from(months).sort(), "Month");
     fillSelect(yearSelect, Array.from(years).sort(), "Year");
@@ -432,11 +683,12 @@ function applyFilters() {
     const startVal = document.getElementById("filter-date-start").value;
     const endVal = document.getElementById("filter-date-end").value;
 
+    // Inputs are yyyy-mm-dd; normalize to full-day range
     const startDate = startVal ? new Date(startVal + "T00:00:00") : null;
     const endDate = endVal ? new Date(endVal + "T23:59:59") : null;
 
     const filtered = allRows.filter(r => {
-        if (programVal && (r["Program"] || r["Programs"]) !== programVal) return false;
+        if (programVal && (r["Business"] || r["Program"] || r["Programs"]) !== programVal) return false;
         if (dayVal && r["Day"] !== dayVal) return false;
         if (monthVal && r["Month"] !== monthVal) return false;
         if (yearVal && r["Year"] !== yearVal) return false;
@@ -455,10 +707,15 @@ function applyFilters() {
     const kpis = calculateKPIs(filtered);
     renderKPIs(kpis);
 
-    const lobData = groupByProgram(filtered);
+    const lobData = groupByBusiness(filtered);
     renderLOBChart(lobData);
+    renderVolumeTrendChart(filtered);
+    renderSLAbnTrendChart(filtered);
+    renderAHTChart(filtered);
 }
 
+
+// Reset all filters to full dataset
 function resetFilters() {
     if (!allRows || allRows.length === 0) return;
 
@@ -495,7 +752,10 @@ function resetFilters() {
 
     const kpis = calculateKPIs(allRows);
     renderKPIs(kpis);
-    renderLOBChart(groupByProgram(allRows));
+    renderLOBChart(groupByBusiness(allRows));
+    renderVolumeTrendChart(allRows);
+    renderSLAbnTrendChart(allRows);
+    renderAHTChart(allRows);
 }
 
 function attachFilterEvents() {
@@ -548,6 +808,10 @@ loadData().then(rows => {
     populateFilters(allRows);
     attachFilterEvents();
 
-    renderKPIs(calculateKPIs(allRows));
-    renderLOBChart(groupByProgram(allRows));
+    const initialKpis = calculateKPIs(allRows);
+    renderKPIs(initialKpis);
+    renderLOBChart(groupByBusiness(allRows));
+    renderVolumeTrendChart(allRows);
+    renderSLAbnTrendChart(allRows);
+    renderAHTChart(allRows);
 });
