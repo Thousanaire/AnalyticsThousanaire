@@ -109,7 +109,7 @@ function calculateKPIs(rows) {
     const abandoned = sum(rows, "ABD #");
     const flowOuts = sum(rows, "FLOW OUTS");
 
-    const holds = sum(rows, "HOLDS") + sum(rows, "# of HOLDS");
+    const holds = # sum(rows, "# of HOLDS");
 
     const totalWait = sum(rows, "Wait time");
     const timeToAbandon = sum(rows, "TIME TO ABANDON");
@@ -382,3 +382,4 @@ loadData().then(rows => {
     renderKPIs(calculateKPIs(allRows));
     renderLOBChart(groupByProgram(allRows));
 });
+
