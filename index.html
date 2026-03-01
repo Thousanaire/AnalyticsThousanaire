@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LQS Analytics Dashboard</title>
 
+    <!-- Styles -->
     <link rel="stylesheet" href="styles.css">
 
     <!-- Chart.js -->
@@ -22,7 +23,9 @@
                 <span class="subtitle">Contact Center Performance Overview</span>
             </div>
             <div class="top-right">
-                <div class="status-pill" id="status-pill">Loading latest data…</div>
+                <div class="status-pill" id="status-pill">
+                    Loading latest data…
+                </div>
             </div>
         </header>
 
@@ -65,7 +68,7 @@
 
         </section>
 
-        <!-- ACTIVE FILTER TAGS (optional, not yet wired) -->
+        <!-- ACTIVE FILTER TAGS (optional placeholder) -->
         <section class="active-filters" id="active-filters"></section>
 
         <!-- MAIN DASHBOARD CANVAS -->
@@ -80,35 +83,45 @@
                 <div id="kpi-container" class="compact-kpi-grid"></div>
             </section>
 
-            <!-- RIGHT: VISUALS PANEL -->
+            <!-- RIGHT: 2x2 GRID OF CHART BOXES -->
             <section class="panel right-panel">
                 <div class="panel-header">
                     <h2>Performance by Business</h2>
-                    <span class="panel-subtitle">Answered, Trends & Efficiency</span>
+                    <span class="panel-subtitle">Volume, Service, and Efficiency</span>
                 </div>
 
-                <!-- Top: Answered by Business (existing bar) -->
-                <div class="chart-card tall-chart">
-                    <h3 class="chart-title-sm">Answered Contacts by Business</h3>
-                    <canvas id="lobChart"></canvas>
-                </div>
+                <div class="right-grid">
+                    <!-- Top-left: Answered by Business -->
+                    <div class="chart-card">
+                        <h3 class="chart-title-sm">Answered Contacts by Business</h3>
+                        <div class="chart-inner">
+                            <canvas id="lobChart"></canvas>
+                        </div>
+                    </div>
 
-                <!-- Bottom row: 2 charts -->
-                <div class="chart-row">
+                    <!-- Top-right: Volume Trend -->
                     <div class="chart-card">
                         <h3 class="chart-title-sm">Volume Trend</h3>
-                        <canvas id="volumeTrendChart"></canvas>
+                        <div class="chart-inner">
+                            <canvas id="volumeTrendChart"></canvas>
+                        </div>
                     </div>
-                    <div class="chart-card">
-                        <h3 class="chart-title-sm">Service Level & Abandon %</h3>
-                        <canvas id="slAbnTrendChart"></canvas>
-                    </div>
-                </div>
 
-                <!-- AHT by Business full-width -->
-                <div class="chart-card">
-                    <h3 class="chart-title-sm">Average Handle Time by Business</h3>
-                    <canvas id="ahtChart"></canvas>
+                    <!-- Bottom-left: Service Level & Abandon % -->
+                    <div class="chart-card">
+                        <h3 class="chart-title-sm">Service Level &amp; Abandon %</h3>
+                        <div class="chart-inner">
+                            <canvas id="slAbnTrendChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Bottom-right: AHT by Business -->
+                    <div class="chart-card">
+                        <h3 class="chart-title-sm">Average Handle Time by Business</h3>
+                        <div class="chart-inner">
+                            <canvas id="ahtChart"></canvas>
+                        </div>
+                    </div>
                 </div>
             </section>
 
