@@ -48,7 +48,7 @@ function parseCSV(csv) {
             row.push(current);
             current = "";
         } else if ((char === '\n' || char === '\r') && !insideQuotes) {
-            // Row separator (real newline chars, not "\n" text)
+            // Row separator
             if (current.length > 0 || row.length > 0) {
                 row.push(current);
                 rows.push(row);
@@ -94,27 +94,27 @@ function toHHMMSS(seconds) {
 
 
 // ---------------------------------------------
-// DATE PARSER
+// DATE PARSER (supports MM/DD/YYYY and YYYY-MM-DD)
 // ---------------------------------------------
 function parseSheetDate(value) {
     if (!value) return null;
 
     const str = String(value).trim();
 
-    // Support ISO-like export (yyyy-mm-dd) directly
-    if (str.includes("-") && /^\d{4}-\d{2}-\d{2}/.test(str)) {
-        const d = new Date(str);
-        return isNaN(d.getTime()) ? null : d;
+    // ISO-like export (yyyy-mm-dd or yyyy-mm-dd hh:mm:ss)
+    if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
+        const [ymd] = str.split(" ");
+        const [y, m, d] = ymd.split("-").map(Number);
+        const dt = new Date(y, m - 1, d);
+        return isNaN(dt.getTime()) ? null : dt;
     }
 
-    // Fallback: mm/dd/yy or mm/dd/yyyy
+    // mm/dd/yy or mm/dd/yyyy
     const datePart = str.split(" ")[0].trim();
     const parts = datePart.split("/");
-
     if (parts.length !== 3) return null;
 
     let [m, d, y] = parts.map(p => p.trim());
-
     m = Number(m);
     d = Number(d);
     y = Number(y);
@@ -206,7 +206,7 @@ function groupByProgram(rows) {
 
     rows.forEach(r => {
         const program = r["Program"] || r["Programs"] || "Unknown";
-        const answered = sum([r], "ANS. #"); // use same sanitizer
+        const answered = sum([r], "ANS. #");
 
         if (!map[program]) map[program] = 0;
         map[program] += answered;
@@ -359,8 +359,9 @@ function applyFilters() {
     const startVal = document.getElementById("filter-date-start").value;
     const endVal = document.getElementById("filter-date-end").value;
 
-    const startDate = startVal ? new Date(startVal) : null;
-    const endDate = endVal ? new Date(endVal) : null;
+    // Inputs are yyyy-mm-dd; normalize to full-day range
+    const startDate = startVal ? new Date(startVal + "T00:00:00") : null;
+    const endDate = endVal ? new Date(endVal + "T23:59:59") : null;
 
     const filtered = allRows.filter(r => {
         if (programVal && (r["Program"] || r["Programs"]) !== programVal) return false;
@@ -386,6 +387,50 @@ function applyFilters() {
     renderLOBChart(lobData);
 }
 
+
+// Reset all filters to full dataset
+function resetFilters() {
+    if (!allRows || allRows.length === 0) return;
+
+    // Clear selects
+    const programSelect = document.getElementById("filter-program");
+    const daySelect = document.getElementById("filter-day");
+    const monthSelect = document.getElementById("filter-month");
+    const yearSelect = document.getElementById("filter-year");
+    const quarterSelect = document.getElementById("filter-quarter");
+    const startInput = document.getElementById("filter-date-start");
+    const endInput = document.getElementById("filter-date-end");
+
+    if (programSelect) programSelect.value = "";
+    if (daySelect) daySelect.value = "";
+    if (monthSelect) monthSelect.value = "";
+    if (yearSelect) yearSelect.value = "";
+    if (quarterSelect) quarterSelect.value = "";
+
+    // Reset date range to full span
+    const dates = [];
+    allRows.forEach(r => {
+        if (r["DATE"]) {
+            const d = parseSheetDate(r["DATE"]);
+            if (d) dates.push(d);
+        }
+    });
+
+    if (dates.length > 0) {
+        dates.sort((a, b) => a - b);
+        if (startInput) startInput.value = toInputDate(dates[0]);
+        if (endInput) endInput.value = toInputDate(dates[dates.length - 1]);
+    } else {
+        if (startInput) startInput.value = "";
+        if (endInput) endInput.value = "";
+    }
+
+    // Re-render full dataset
+    const kpis = calculateKPIs(allRows);
+    renderKPIs(kpis);
+    renderLOBChart(groupByProgram(allRows));
+}
+
 function attachFilterEvents() {
     [
         "filter-program",
@@ -399,6 +444,11 @@ function attachFilterEvents() {
         const el = document.getElementById(id);
         if (el) el.addEventListener("change", applyFilters);
     });
+
+    const resetBtn = document.getElementById("filter-reset");
+    if (resetBtn) {
+        resetBtn.addEventListener("click", resetFilters);
+    }
 }
 
 
