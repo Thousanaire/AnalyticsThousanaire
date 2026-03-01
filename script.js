@@ -24,7 +24,7 @@ async function loadData() {
 
 
 // ---------------------------------------------
-// 2B) NEW ROBUST CSV PARSER
+// 2B) ROBUST CSV PARSER
 // ---------------------------------------------
 function parseCSV(csv) {
     const rows = [];
@@ -85,7 +85,7 @@ function toHHMMSS(seconds) {
 
 
 // ---------------------------------------------
-// DATE PARSER FOR FORMAT: 1/1/2026
+// DATE PARSER
 // ---------------------------------------------
 function parseSheetDate(value) {
     if (!value) return null;
@@ -108,7 +108,7 @@ function parseSheetDate(value) {
 
 
 // ---------------------------------------------
-// 3) Calculate KPIs (WITH HH:MM:SS DURATIONS)
+// 3) KPI CALCULATIONS (SECONDS → HH:MM:SS)
 // ---------------------------------------------
 function calculateKPIs(rows) {
     const offered = sum(rows, "OFFERED");
@@ -123,6 +123,7 @@ function calculateKPIs(rows) {
 
     const ansUnder30 = sum(rows, "TOTAL ANS < 30 SEC.");
 
+    // These are already in SECONDS
     const talkTime = sum(rows, "Talk Time");
     const holdTime = sum(rows, "Hold Time");
     const acwTime = sum(rows, "ACW Time");
@@ -132,12 +133,12 @@ function calculateKPIs(rows) {
     const abnPct = offered ? (abandoned / offered) * 100 : 0;
     const slPct = answered ? (ansUnder30 / answered) * 100 : 0;
 
-    // Convert durations to seconds using × 86400
-    const asaSec = answered ? ((totalWait - timeToAbandon) / answered) * 86400 : 0;
-    const avgTalkSec = answered ? (talkTime / answered) * 86400 : 0;
-    const avgHoldSec = answered ? (holdTime / answered) * 86400 : 0;
-    const avgACWSec = answered ? (acwTime / answered) * 86400 : 0;
-    const avgHandleSec = answered ? (handleTime / answered) * 86400 : 0;
+    // Averages (seconds → HH:MM:SS)
+    const asaSec = answered ? (totalWait - timeToAbandon) / answered : 0;
+    const avgTalkSec = answered ? talkTime / answered : 0;
+    const avgHoldSec = answered ? holdTime / answered : 0;
+    const avgACWSec = answered ? acwTime / answered : 0;
+    const avgHandleSec = answered ? handleTime / answered : 0;
 
     return {
         offered,
@@ -169,7 +170,7 @@ function sum(rows, col) {
 
 
 // ---------------------------------------------
-// 4) Group by Program (LOB)
+// 4) GROUP BY PROGRAM
 // ---------------------------------------------
 function groupByProgram(rows) {
     const map = {};
@@ -187,7 +188,7 @@ function groupByProgram(rows) {
 
 
 // ---------------------------------------------
-// 5) Render KPI Cards
+// 5) RENDER KPI CARDS
 // ---------------------------------------------
 function renderKPIs(kpis) {
     const container = document.getElementById("kpi-container");
@@ -229,7 +230,7 @@ function formatLabel(label) {
 
 
 // ---------------------------------------------
-// 6) Render Bar Chart
+// 6) RENDER BAR CHART
 // ---------------------------------------------
 function renderLOBChart(data) {
     const ctx = document.getElementById("lobChart");
@@ -260,7 +261,7 @@ function renderLOBChart(data) {
 
 
 // ---------------------------------------------
-// 7) FILTERS: Populate + Apply
+// 7) FILTERS
 // ---------------------------------------------
 function populateFilters(rows) {
     const programSelect = document.getElementById("filter-program");
@@ -373,7 +374,7 @@ function attachFilterEvents() {
 
 
 // ---------------------------------------------
-// 8) Initialize Dashboard
+// 8) INITIALIZE DASHBOARD
 // ---------------------------------------------
 loadData().then(rows => {
     if (!rows || rows.length === 0) return;
