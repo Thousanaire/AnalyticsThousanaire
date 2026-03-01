@@ -143,6 +143,25 @@ function groupByProgram(rows) {
     return Object.entries(map).map(([lob, value]) => ({ lob, value }));
 }
 
+function getDayOfWeekData(filteredRows) {
+    const dayTotals = {};
+    const dayOrder = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    
+    filteredRows.forEach(row => {
+        const day = row["Day"];
+        if (day && dayOrder.includes(day)) {
+            const answered = sum([row], "ANS. #");
+            dayTotals[day] = (dayTotals[day] || 0) + answered;
+        }
+    });
+    
+    // Ensure all days are included, even if zero
+    return dayOrder.map(day => ({
+        day: day,
+        answered: dayTotals[day] || 0
+    }));
+}
+
 function getKpiStatus(key, value) {
     const thresholds = { ans_pct: 80, abn_pct: 5, service_level_pct: 75 };
     const val = parseFloat(value);
@@ -180,16 +199,71 @@ function formatLabel(label) {
     return map[label] || label.replace(/_/g, " ").toUpperCase();
 }
 
-function renderLOBChart(data) {
+function renderHeatmapChart(data) {
     const ctx = document.getElementById("lobChart");
     if (lobChart) lobChart.destroy();
+    
+    // Find max value for color scaling
+    const maxValue = Math.max(...data.map(item => item.answered));
+    
     lobChart = new Chart(ctx, {
-        type: "bar",
-        data: { labels: data.map(item => item.lob), datasets: [{
-            label: "Answered Contacts", data: data.map(item => item.value),
-            backgroundColor: "#4a90e2"
-        }]},
-        options: { responsive: true, scales: { x: { ticks: { autoSkip: false, maxRotation: 45 } }, y: { beginAtZero: true } } }
+        type: 'bar',
+        data: {
+            labels: data.map(item => item.day),
+            datasets: [{
+                label: 'Answered Contacts',
+                data: data.map(item => item.answered),
+                backgroundColor: data.map(item => {
+                    const intensity = maxValue > 0 ? item.answered / maxValue : 0;
+                    const alpha = Math.max(0.2, intensity * 0.8 + 0.2); // Min 0.2, max 1.0
+                    return `rgba(74, 144, 226, ${alpha})`;
+                }),
+                borderColor: '#2c5aa0',
+                borderWidth: 2,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            indexAxis: 'y', // Horizontal bars for better day labels
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                title: {
+                    display: true,
+                    text: 'Answered Contacts by Day of Week (Heatmap)',
+                    font: { size: 16, weight: 'bold' }
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `${context.dataset.label}: ${context.parsed.x.toLocaleString()}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    title: { 
+                        display: true, 
+                        text: 'Answered Contacts',
+                        font: { size: 14, weight: 'bold' }
+                    },
+                    grid: { display: true }
+                },
+                y: {
+                    title: { 
+                        display: true, 
+                        text: 'Day of Week',
+                        font: { size: 14, weight: 'bold' }
+                    },
+                    grid: { display: false }
+                }
+            }
+        }
     });
 }
 
@@ -207,8 +281,8 @@ function renderInsights(lobData) {
                 ${top.map((item, i) => `
                     <tr>
                         <td class="top-performer">${item.lob}</td>
-                        <td>${item.value}</td>
-                        ${i < 3 ? `<td class="worst-performer">${bottom[i]?.lob || ''}</td><td>${bottom[i]?.value || 0}</td>` : '<td colspan="2"></td>'}
+                        <td>${item.value.toLocaleString()}</td>
+                        ${i < 3 ? `<td class="worst-performer">${bottom[i]?.lob || ''}</td><td>${bottom[i]?.value?.toLocaleString() || 0}</td>` : '<td colspan="2"></td>'}
                     </tr>
                 `).join('')}
             </tbody>
@@ -216,9 +290,7 @@ function renderInsights(lobData) {
     `;
 }
 
-// TRENDS & HEATMAP (Simplified)
 function renderTrends(filteredRows) {
-    // Mock trend data - replace with real date grouping
     const ctxTrend = document.getElementById("trendChart");
     if (trendChart) trendChart.destroy();
     trendChart = new Chart(ctxTrend, {
@@ -248,7 +320,6 @@ function renderTrends(filteredRows) {
 }
 
 function populateFilters(rows) {
-    const selects = ['program', 'day', 'month', 'year', 'quarter'].map(id => `filter-${id}`);
     const programSelect = document.getElementById("filter-program");
     const daySelect = document.getElementById("filter-day");
     const monthSelect = document.getElementById("filter-month");
@@ -291,7 +362,6 @@ function toInputDate(d) {
 function getFilteredData() {
     let filtered = [...allRows];
     
-    // Apply active filters
     activeFilters.forEach(f => {
         filtered = filtered.filter(r => {
             if (f.type === 'program') return (r["Program"] || r["Programs"]) === f.value;
@@ -303,7 +373,6 @@ function getFilteredData() {
         });
     });
 
-    // Apply date range
     const startVal = document.getElementById("filter-date-start").value;
     const endVal = document.getElementById("filter-date-end").value;
     const startDate = startVal ? new Date(startVal + "T00:00:00") : null;
@@ -319,7 +388,6 @@ function getFilteredData() {
         });
     }
 
-    // Apply search
     if (searchTerm) {
         filtered = filtered.filter(r => 
             Object.values(r).some(val => String(val).toLowerCase().includes(searchTerm.toLowerCase()))
@@ -336,7 +404,7 @@ function updateActiveFilters() {
         return;
     }
     container.innerHTML = activeFilters.map(f => 
-        `<span class="filter-tag" onclick="removeFilter('${f.type}', '${f.value}')">${f.label} ✕</span>`
+        `<span class="filter-tag" onclick="removeFilter('${f.type}', '${f.value.replace(/'/g, "\\'")}')">${f.label} ✕</span>`
     ).join('');
 }
 
@@ -358,9 +426,10 @@ function renderDashboard() {
     const filtered = getFilteredData();
     const kpis = calculateKPIs(filtered);
     const lobData = groupByProgram(filtered);
+    const dayData = getDayOfWeekData(filtered);
     
     renderKPIs(kpis);
-    renderLOBChart(lobData);
+    renderHeatmapChart(dayData);  // Changed from renderLOBChart
     renderInsights(lobData);
     renderTrends(filtered);
     checkAlerts(kpis);
@@ -376,7 +445,6 @@ function checkAlerts(kpis) {
         alerts.map(a => `<div class="alert">${a}</div>`).join('') || '';
 }
 
-// EXPORTS
 function download(filename, text) {
     const element = document.createElement('a');
     element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
@@ -390,7 +458,7 @@ function download(filename, text) {
 function exportCSV() {
     const filtered = getFilteredData();
     const headers = Object.keys(filtered[0] || {});
-    const csv = [headers.join(','), ...filtered.map(row => headers.map(h => row[h]).join(','))].join('\n');
+    const csv = [headers.join(','), ...filtered.map(row => headers.map(h => `"${row[h] || ''}"`).join(','))].join('\n');
     download(`lqs-analytics-${new Date().toISOString().split('T')[0]}.csv`, csv);
 }
 
@@ -411,9 +479,7 @@ function updateStatus(message) {
     document.getElementById('status-bar').textContent = message;
 }
 
-// EVENT HANDLERS
 function attachEvents() {
-    // Filter changes
     ['filter-program', 'filter-day', 'filter-month', 'filter-year', 'filter-quarter', 'filter-date-start', 'filter-date-end']
         .forEach(id => {
             const el = document.getElementById(id);
@@ -427,7 +493,6 @@ function attachEvents() {
             }
         });
 
-    // Reset
     document.getElementById('filter-reset').addEventListener('click', () => {
         activeFilters = [];
         document.getElementById('filter-program').value = '';
@@ -443,14 +508,12 @@ function attachEvents() {
         renderDashboard();
     });
 
-    // Quick search
     document.getElementById('quick-search').addEventListener('input', (e) => {
         searchTerm = e.target.value;
         renderDashboard();
     });
 }
 
-// INIT
 loadData().then(rows => {
     if (!rows || rows.length === 0) return;
     allRows = rows;
@@ -459,7 +522,6 @@ loadData().then(rows => {
     renderDashboard();
     updateStatus(`✅ Loaded ${rows.length} records - Last updated: ${new Date().toLocaleString()}`);
     
-    // Auto-refresh every 5 minutes
     setInterval(() => {
         loadData().then(newRows => {
             allRows = newRows;
