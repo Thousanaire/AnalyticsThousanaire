@@ -32,11 +32,12 @@ h1 {
     text-align: center;
     font-size: 14px;
     color: #6b7280;
-    margin-bottom: 20px;
+    margin: 0 auto 20px auto;
     padding: 8px 20px;
     background: rgba(255,255,255,0.8);
     border-radius: 25px;
-    display: inline-block;
+    display: block;
+    max-width: 600px;
     font-weight: 500;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
@@ -57,6 +58,7 @@ h1 {
     max-width: 1600px;
     margin: 0 auto;
     background: rgba(255,255,255,0.7);
+    border-radius: 0 0 24px 24px;
 }
 
 #quick-search {
@@ -172,7 +174,7 @@ h1 {
 
 /* ACTIVE FILTERS */
 .active-filters {
-    max-width: 1400px;
+    max-width: 1600px;
     margin: 0 auto 20px auto;
     padding: 0 24px;
     display: flex;
@@ -197,7 +199,7 @@ h1 {
     box-shadow: 0 8px 20px rgba(59,130,246,0.4);
 }
 
-/* DASHBOARD GRID */
+/* DASHBOARD GRID - SINGLE SCREEN FIT */
 .dashboard-grid {
     display: grid;
     grid-template-columns: 420px 1fr;
@@ -205,7 +207,7 @@ h1 {
     padding: 0 24px 24px 24px;
     max-width: 1800px;
     margin: 0 auto;
-    min-height: calc(100vh - 300px);
+    min-height: calc(100vh - 320px);
 }
 
 /* LEFT PANEL - KPIs */
@@ -222,6 +224,7 @@ h1 {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
+    height: 100%;
 }
 
 .kpi-card {
@@ -246,9 +249,23 @@ h1 {
     background: linear-gradient(90deg, var(--card-color, #e5e7eb), transparent);
 }
 
-.kpi-card.good { --card-color: #10b981; border-left-color: #10b981; }
-.kpi-card.warning { --card-color: #f59e0b; border-left-color: #f59e0b; }
-.kpi-card.danger { --card-color: #ef4444; border-left-color: #ef4444; }
+.kpi-card.good { 
+    --card-color: #10b981; 
+    border-left-color: #10b981; 
+}
+.kpi-card.warning { 
+    --card-color: #f59e0b; 
+    border-left-color: #f59e0b; 
+}
+.kpi-card.danger { 
+    --card-color: #ef4444; 
+    border-left-color: #ef4444; 
+}
+
+.kpi-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
 
 .kpi-card h3 {
     margin: 0 0 12px 0;
@@ -285,7 +302,7 @@ h1 {
 }
 
 .chart-card.tall-chart {
-    height: 400px;
+    height: 420px;
 }
 
 .chart-card h3 {
@@ -301,7 +318,7 @@ h1 {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 24px;
-    height: 220px;
+    height: 240px;
 }
 
 .chart-card canvas {
@@ -313,7 +330,7 @@ h1 {
 /* INSIGHTS TABLE */
 .compact-insights {
     font-size: 13px;
-    height: 140px;
+    height: 160px;
     overflow-y: auto;
 }
 
@@ -337,8 +354,14 @@ h1 {
     top: 0;
 }
 
-.top-performer { color: #10b981; font-weight: bold; }
-.worst-performer { color: #ef4444; font-weight: bold; }
+.top-performer { 
+    color: #10b981; 
+    font-weight: bold; 
+}
+.worst-performer { 
+    color: #ef4444; 
+    font-weight: bold; 
+}
 
 /* ANIMATIONS */
 @keyframes spin {
@@ -350,10 +373,20 @@ h1 {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* RESPONSIVE */
+/* RESPONSIVE - SINGLE SCREEN MOBILE */
 @media (max-width: 1400px) {
-    .dashboard-grid { grid-template-columns: 1fr; gap: 20px; }
-    .chart-row { grid-template-columns: 1fr; }
+    .dashboard-grid { 
+        grid-template-columns: 1fr; 
+        gap: 20px; 
+        padding: 0 16px 16px 16px;
+    }
+    .chart-row { 
+        grid-template-columns: 1fr; 
+        height: 200px;
+    }
+    .chart-card.tall-chart {
+        height: 380px;
+    }
 }
 
 @media (max-width: 768px) {
@@ -363,14 +396,56 @@ h1 {
         padding: 16px;
     }
     
-    #quick-search { flex: 1 0 100%; min-width: 100%; }
-    .date-controls { width: 100%; justify-content: center; }
+    #quick-search { 
+        flex: 1 0 100%; 
+        min-width: 100%; 
+        max-width: 100%;
+    }
+    .date-controls { 
+        width: 100%; 
+        justify-content: center; 
+    }
     
-    .compact-kpi-grid { grid-template-columns: 1fr; }
-    .dashboard-grid { padding: 16px; }
+    .compact-kpi-grid { 
+        grid-template-columns: 1fr; 
+        gap: 16px;
+    }
+    .dashboard-grid { 
+        padding: 16px; 
+        gap: 16px;
+    }
+    h1 { font-size: 28px; }
 }
 
 @media (max-width: 480px) {
     h1 { font-size: 24px; }
     body { font-size: 14px; }
+    .control-bar {
+        padding: 12px;
+        gap: 8px;
+    }
+    .control-bar select {
+        min-width: 90px;
+        font-size: 12px;
+    }
+    .date-controls input {
+        width: 120px;
+        font-size: 12px;
+    }
+    .kpi-card p {
+        font-size: 24px;
+    }
+}
+
+/* PERFECT SINGLE SCREEN FIT */
+html, body {
+    height: 100%;
+}
+
+.dashboard-grid {
+    height: calc(100vh - 340px);
+}
+
+.right-panel {
+    overflow: hidden;
 }
