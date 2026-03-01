@@ -392,7 +392,6 @@ function applyFilters() {
 function resetFilters() {
     if (!allRows || allRows.length === 0) return;
 
-    // Clear selects
     const programSelect = document.getElementById("filter-program");
     const daySelect = document.getElementById("filter-day");
     const monthSelect = document.getElementById("filter-month");
@@ -407,7 +406,6 @@ function resetFilters() {
     if (yearSelect) yearSelect.value = "";
     if (quarterSelect) quarterSelect.value = "";
 
-    // Reset date range to full span
     const dates = [];
     allRows.forEach(r => {
         if (r["DATE"]) {
@@ -425,7 +423,6 @@ function resetFilters() {
         if (endInput) endInput.value = "";
     }
 
-    // Re-render full dataset
     const kpis = calculateKPIs(allRows);
     renderKPIs(kpis);
     renderLOBChart(groupByProgram(allRows));
