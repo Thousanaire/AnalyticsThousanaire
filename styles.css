@@ -159,41 +159,6 @@ body {
     box-shadow: 0 10px 18px rgba(59, 130, 246, 0.55);
 }
 
-/* NEW: Export buttons styling */
-.export-buttons {
-    display: flex;
-    gap: 6px;
-    padding: 6px 10px;
-    border-radius: 999px;
-    background: rgba(15, 23, 42, 0.9);
-    border: 1px solid rgba(55, 65, 81, 0.8);
-}
-
-.export-buttons button {
-    padding: 6px 12px;
-    background: linear-gradient(135deg, #10b981, #047857);
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.export-buttons button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
-}
-
-#download-pdf {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-}
-
-#download-pdf:hover {
-    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
-}
-
 /* ------------------------------
    ACTIVE FILTER TAGS
 --------------------------------*/
@@ -515,8 +480,7 @@ body {
         align-items: flex-start;
     }
 
-    .date-controls,
-    .export-buttons {
+    .date-controls {
         width: 100%;
         justify-content: flex-start;
         flex-wrap: wrap;
@@ -528,3 +492,4 @@ body {
         font-size: 18px;
     }
 }
+
