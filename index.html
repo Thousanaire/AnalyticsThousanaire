@@ -3,96 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OTHER LOBs CALL CENTER DASHBOARD</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-</head>
+    <title>LQS Analytics Dashboard</title>
 
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
 <body>
-    <header>
-        <h1>📊 OTHER LOBs CALL CENTER DASHBOARD</h1>
-        <div id="status-bar" class="status-bar">Loading...</div>
-        
-        <!-- ALL CONTROLS ON ONE SINGLE LINE -->
-        <div id="control-bar" class="control-bar">
-            <!-- Search -->
-            <input type="text" id="quick-search" placeholder="🔍 Search all data...">
-            
-            <!-- Compact Filters -->
+
+    <!-- APP SHELL -->
+    <div class="app-shell">
+
+        <!-- TOP BAR -->
+        <header class="top-bar">
+            <div class="top-left">
+                <h1>LQS Analytics</h1>
+                <span class="subtitle">Contact Center Performance Overview</span>
+            </div>
+            <div class="top-right">
+                <div class="status-pill" id="status-pill">Loading latest data…</div>
+            </div>
+        </header>
+
+        <!-- CONTROL STRIP -->
+        <section class="control-bar">
+
+            <!-- Program -->
             <select id="filter-program">
                 <option value="">Program</option>
             </select>
+
+            <!-- Day -->
             <select id="filter-day">
                 <option value="">Day</option>
             </select>
+
+            <!-- Month -->
             <select id="filter-month">
                 <option value="">Month</option>
             </select>
+
+            <!-- Year -->
             <select id="filter-year">
                 <option value="">Year</option>
             </select>
+
+            <!-- Quarter -->
             <select id="filter-quarter">
                 <option value="">Quarter</option>
             </select>
-            
-            <!-- Date Range -->
+
+            <!-- Date range + reset -->
             <div class="date-controls">
+                <span>From</span>
                 <input type="date" id="filter-date-start">
+                <span>To</span>
                 <input type="date" id="filter-date-end">
                 <button id="filter-reset" type="button">Reset</button>
             </div>
-            
-            <!-- Export Buttons -->
-            <div class="export-buttons">
-                <button onclick="exportCSV()" title="Download CSV">📊 CSV</button>
-                <button onclick="exportPDF()" title="Print PDF">📄 PDF</button>
-                <button onclick="exportImage()" title="Screenshot">🖼️ PNG</button>
-            </div>
-        </div>
-    </header>
 
-    <!-- ALERT BANNERS -->
-    <section id="alerts-container" class="alerts-container"></section>
+        </section>
 
-    <!-- ACTIVE FILTER TAGS -->
-    <section id="active-filters" class="active-filters"></section>
+        <!-- ACTIVE FILTER TAGS (optional, JS can fill later) -->
+        <section class="active-filters" id="active-filters"></section>
 
-    <!-- TWO-COLUMN DASHBOARD - PERFECT SINGLE SCREEN FIT -->
-    <div class="dashboard-grid">
-        <!-- LEFT: COMPACT KPIs (2x3 GRID) -->
-        <div class="left-panel">
-            <section id="kpi-container" class="compact-kpi-grid"></section>
-        </div>
+        <!-- MAIN DASHBOARD CANVAS -->
+        <main class="dashboard-grid">
 
-        <!-- RIGHT: CHARTS & INSIGHTS -->
-        <div class="right-panel">
-            <!-- MAIN HEATMAP: ANSWERED BY DAY OF WEEK -->
-            <div class="chart-card tall-chart">
-                <h3>Answered Contacts by Day of Week <span style="font-size: 12px; opacity: 0.7;">(Heatmap)</span></h3>
-                <canvas id="lobChart"></canvas>
-            </div>
-            
-            <!-- TOP ROW: TRENDS + SERVICE METRICS -->
-            <div class="chart-row">
-                <div class="chart-card">
-                    <h3>Weekly Trends</h3>
-                    <canvas id="trendChart"></canvas>
+            <!-- LEFT: SCORECARD PANEL -->
+            <section class="panel left-panel">
+                <div class="panel-header">
+                    <h2>Scorecards</h2>
+                    <span class="panel-subtitle">Key KPIs</span>
                 </div>
-                <div class="chart-card">
-                    <h3>Service Level</h3>
-                    <canvas id="heatmapChart"></canvas>
+                <div id="kpi-container" class="compact-kpi-grid"></div>
+            </section>
+
+            <!-- RIGHT: VISUALS PANEL -->
+            <section class="panel right-panel">
+                <div class="panel-header">
+                    <h2>Performance by Program</h2>
+                    <span class="panel-subtitle">Answered Contacts by Line of Business</span>
                 </div>
-            </div>
-            
-            <!-- BOTTOM: TOP/WORST PERFORMERS TABLE -->
-            <div class="chart-card">
-                <h3>Top/Worst LOB Performers</h3>
-                <div id="insights-table" class="compact-insights"></div>
-            </div>
-        </div>
+
+                <div class="chart-card tall-chart">
+                    <canvas id="lobChart"></canvas>
+                </div>
+
+                <!-- SECONDARY ZONE FOR FUTURE VISUALS / TABLES
+                <div class="chart-row">
+                    <div class="chart-card">
+                        <h3>Service Level Trend</h3>
+                        <canvas id="slChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Abandon Rate Trend</h3>
+                        <canvas id="abnChart"></canvas>
+                    </div>
+                </div>
+                -->
+
+            </section>
+
+        </main>
+
+        <!-- ALERTS TOAST AREA -->
+        <div class="alerts-container" id="alerts"></div>
+
     </div>
 
+    <!-- MAIN SCRIPT -->
     <script src="script.js"></script>
 </body>
 </html>
