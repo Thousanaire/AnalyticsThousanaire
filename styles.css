@@ -343,7 +343,15 @@ body {
     width: 100%;
 }
 
-/* For potential multi-chart row */
+/* Chart titles inside cards */
+.chart-title-sm {
+    font-size: 12px;
+    font-weight: 600;
+    color: #e5e7eb;
+    margin-bottom: 4px;
+}
+
+/* Multi-chart row */
 .chart-row {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -463,6 +471,10 @@ body {
         width: 100%;
         justify-content: flex-start;
         flex-wrap: wrap;
+    }
+
+    .chart-row {
+        grid-template-columns: 1fr;
     }
 }
 
