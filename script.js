@@ -375,3 +375,4 @@ loadData().then(rows => {
     renderKPIs(calculateKPIs(allRows));
     renderLOBChart(groupByProgram(allRows));
 });
+
