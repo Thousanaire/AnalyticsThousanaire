@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LQS Analytics Dashboard</title>
+    <title>OTHER LOBs CALL CENTER DASHBOARD</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
 
 <body>
     <header>
-        <h1>LQS Analytics Dashboard</h1>
+        <h1>📊 OTHER LOBs CALL CENTER DASHBOARD</h1>
         <div id="status-bar" class="status-bar">Loading...</div>
         
         <!-- ALL CONTROLS ON ONE SINGLE LINE -->
@@ -57,22 +58,22 @@
     <!-- ACTIVE FILTER TAGS -->
     <section id="active-filters" class="active-filters"></section>
 
-    <!-- TWO-COLUMN DASHBOARD -->
+    <!-- TWO-COLUMN DASHBOARD - PERFECT SINGLE SCREEN FIT -->
     <div class="dashboard-grid">
-        <!-- LEFT: COMPACT KPIs -->
+        <!-- LEFT: COMPACT KPIs (2x3 GRID) -->
         <div class="left-panel">
             <section id="kpi-container" class="compact-kpi-grid"></section>
         </div>
 
-        <!-- RIGHT: ALL CHARTS -->
+        <!-- RIGHT: CHARTS & INSIGHTS -->
         <div class="right-panel">
-            <!-- MAIN LOB CHART -->
+            <!-- MAIN HEATMAP: ANSWERED BY DAY OF WEEK -->
             <div class="chart-card tall-chart">
-                <h3>Answered Contacts by Line of Business</h3>
+                <h3>Answered Contacts by Day of Week <span style="font-size: 12px; opacity: 0.7;">(Heatmap)</span></h3>
                 <canvas id="lobChart"></canvas>
             </div>
             
-            <!-- TRENDS + SERVICE LEVEL -->
+            <!-- TOP ROW: TRENDS + SERVICE METRICS -->
             <div class="chart-row">
                 <div class="chart-card">
                     <h3>Weekly Trends</h3>
@@ -84,9 +85,9 @@
                 </div>
             </div>
             
-            <!-- INSIGHTS TABLE -->
+            <!-- BOTTOM: TOP/WORST PERFORMERS TABLE -->
             <div class="chart-card">
-                <h3>Top/Worst Performers</h3>
+                <h3>Top/Worst LOB Performers</h3>
                 <div id="insights-table" class="compact-insights"></div>
             </div>
         </div>
