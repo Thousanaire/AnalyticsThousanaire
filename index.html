@@ -3,92 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LQS Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <title>SCOTTSON'S ANALYTICS DASHBAORD</title>
+
+    <!-- Styles -->
     <link rel="stylesheet" href="styles.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="dashboard">
-        <!-- Header with timestamp & exports -->
-        <header>
-            <h1>LQS Dashboard</h1>
-            <div class="status-bar">
-                <div id="status-pill" class="status-pill loading">Loading latest data…</div>
-                <div class="export-buttons">
-                    <button id="download-png" class="btn btn-primary">📊 PNG</button>
-                    <button id="download-pdf" class="btn btn-secondary">📄 PDF</button>
+
+    <!-- APP SHELL -->
+    <div class="app-shell">
+
+        <!-- TOP BAR -->
+        <header class="top-bar">
+            <div class="top-left">
+                <h1>SCOTTSON'S ANALYTICS DASHBAORD</h1>
+                <span class="subtitle">Fashion Contact Center Performance Overview</span>
+            </div>
+            <div class="top-right">
+                <div class="status-pill" id="status-pill">
+                    Loading latest data…
                 </div>
             </div>
         </header>
 
-        <!-- KPI Cards -->
-        <section class="kpi-section">
-            <div id="kpi-container"></div>
+        <!-- CONTROL STRIP -->
+        <section class="control-bar">
+
+            <!-- Business (was Program) -->
+            <select id="filter-program">
+                <option value="">Business</option>
+            </select>
+
+            <!-- Day -->
+            <select id="filter-day">
+                <option value="">Day</option>
+            </select>
+
+            <!-- Month -->
+            <select id="filter-month">
+                <option value="">Month</option>
+            </select>
+
+            <!-- Year -->
+            <select id="filter-year">
+                <option value="">Year</option>
+            </select>
+
+            <!-- Quarter -->
+            <select id="filter-quarter">
+                <option value="">Quarter</option>
+            </select>
+
+            <!-- Date range + reset -->
+            <div class="date-controls">
+                <span>From</span>
+                <input type="date" id="filter-date-start">
+                <span>To</span>
+                <input type="date" id="filter-date-end">
+                <button id="filter-reset" type="button">Reset</button>
+            </div>
+
         </section>
 
-        <!-- Charts Grid -->
-        <section class="charts-grid">
-            <div class="chart-card">
-                <h3>Answered by Business</h3>
-                <canvas id="lobChart"></canvas>
-            </div>
-            <div class="chart-card">
-                <h3>Volume Trends</h3>
-                <canvas id="volumeTrendChart"></canvas>
-            </div>
-            <div class="chart-card">
-                <h3>Service Level & Abandon %</h3>
-                <canvas id="slAbnTrendChart"></canvas>
-            </div>
-            <div class="chart-card">
-                <h3>AHT by Business</h3>
-                <canvas id="ahtChart"></canvas>
-            </div>
-        </section>
+        <!-- ACTIVE FILTER TAGS (optional placeholder) -->
+        <section class="active-filters" id="active-filters"></section>
 
-        <!-- Filters Section -->
-        <section class="filters-section">
-            <h2>Filters</h2>
-            <div class="filters-grid">
-                <div class="filter-group">
-                    <label>Business</label>
-                    <select id="filter-program" multiple size="4"></select>
+        <!-- MAIN DASHBOARD CANVAS -->
+        <main class="dashboard-grid">
+
+            <!-- LEFT: SCORECARD PANEL -->
+            <section class="panel left-panel">
+                <div class="panel-header">
+                    <h2>Scorecards</h2>
+                    <span class="panel-subtitle">Business KPIs</span>
                 </div>
-                <div class="filter-group">
-                    <label>Day</label>
-                    <select id="filter-day" multiple size="4"></select>
+                <div id="kpi-container" class="compact-kpi-grid"></div>
+            </section>
+
+            <!-- RIGHT: 2x2 GRID OF CHART BOXES -->
+            <section class="panel right-panel">
+                <div class="panel-header">
+                    <h2>Performance by Business</h2>
+                    <span class="panel-subtitle">Volume, Service, and Efficiency</span>
                 </div>
-                <div class="filter-group">
-                    <label>Month</label>
-                    <select id="filter-month" multiple size="4"></select>
-                </div>
-                <div class="filter-group">
-                    <label>Year</label>
-                    <select id="filter-year" multiple size="4"></select>
-                </div>
-                <div class="filter-group">
-                    <label>Quarter</label>
-                    <select id="filter-quarter" multiple size="4"></select>
-                </div>
-                <div class="filter-group">
-                    <label>Date Range</label>
-                    <div class="date-inputs">
-                        <input type="date" id="filter-date-start">
-                        <input type="date" id="filter-date-end">
+
+                <div class="right-grid">
+                    <!-- Top-left: Answered by Business -->
+                    <div class="chart-card">
+                        <h3 class="chart-title-sm">Answered Contacts by Business</h3>
+                        <div class="chart-inner">
+                            <canvas id="lobChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Top-right: Volume Trend -->
+                    <div class="chart-card">
+                        <h3 class="chart-title-sm">Volume Trend</h3>
+                        <div class="chart-inner">
+                            <canvas id="volumeTrendChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Bottom-left: Service Level & Abandon % -->
+                    <div class="chart-card">
+                        <h3 class="chart-title-sm">Service Level &amp; Abandon %</h3>
+                        <div class="chart-inner">
+                            <canvas id="slAbnTrendChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Bottom-right: AHT by Business -->
+                    <div class="chart-card">
+                        <h3 class="chart-title-sm">Average Handle Time by Business</h3>
+                        <div class="chart-inner">
+                            <canvas id="ahtChart"></canvas>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="filter-actions">
-                <button id="filter-reset" class="btn btn-secondary">Reset Filters</button>
-                <button id="filter-apply" class="btn btn-primary">Apply Filters</button>
-            </div>
-        </section>
+            </section>
+
+        </main>
+
+        <!-- ALERTS TOAST AREA -->
+        <div class="alerts-container" id="alerts"></div>
+
     </div>
 
-    <!-- Alerts -->
-    <div id="alerts" class="alerts-container"></div>
-
+    <!-- MAIN SCRIPT -->
     <script src="script.js"></script>
 </body>
 </html>
+
+
