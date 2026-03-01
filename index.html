@@ -29,9 +29,9 @@
         <!-- CONTROL STRIP -->
         <section class="control-bar">
 
-            <!-- Program -->
+            <!-- Business (was Program) -->
             <select id="filter-program">
-                <option value="">Program</option>
+                <option value="">Business</option>
             </select>
 
             <!-- Day -->
@@ -65,7 +65,7 @@
 
         </section>
 
-        <!-- ACTIVE FILTER TAGS (optional, JS can fill later) -->
+        <!-- ACTIVE FILTER TAGS (optional, not yet wired) -->
         <section class="active-filters" id="active-filters"></section>
 
         <!-- MAIN DASHBOARD CANVAS -->
@@ -75,7 +75,7 @@
             <section class="panel left-panel">
                 <div class="panel-header">
                     <h2>Scorecards</h2>
-                    <span class="panel-subtitle">Key KPIs</span>
+                    <span class="panel-subtitle">Business KPIs</span>
                 </div>
                 <div id="kpi-container" class="compact-kpi-grid"></div>
             </section>
@@ -83,27 +83,33 @@
             <!-- RIGHT: VISUALS PANEL -->
             <section class="panel right-panel">
                 <div class="panel-header">
-                    <h2>Performance by Program</h2>
-                    <span class="panel-subtitle">Answered Contacts by Line of Business</span>
+                    <h2>Performance by Business</h2>
+                    <span class="panel-subtitle">Answered, Trends & Efficiency</span>
                 </div>
 
+                <!-- Top: Answered by Business (existing bar) -->
                 <div class="chart-card tall-chart">
+                    <h3 class="chart-title-sm">Answered Contacts by Business</h3>
                     <canvas id="lobChart"></canvas>
                 </div>
 
-                <!-- SECONDARY ZONE FOR FUTURE VISUALS / TABLES
+                <!-- Bottom row: 2 charts -->
                 <div class="chart-row">
                     <div class="chart-card">
-                        <h3>Service Level Trend</h3>
-                        <canvas id="slChart"></canvas>
+                        <h3 class="chart-title-sm">Volume Trend</h3>
+                        <canvas id="volumeTrendChart"></canvas>
                     </div>
                     <div class="chart-card">
-                        <h3>Abandon Rate Trend</h3>
-                        <canvas id="abnChart"></canvas>
+                        <h3 class="chart-title-sm">Service Level & Abandon %</h3>
+                        <canvas id="slAbnTrendChart"></canvas>
                     </div>
                 </div>
-                -->
 
+                <!-- AHT by Business full-width -->
+                <div class="chart-card">
+                    <h3 class="chart-title-sm">Average Handle Time by Business</h3>
+                    <canvas id="ahtChart"></canvas>
+                </div>
             </section>
 
         </main>
