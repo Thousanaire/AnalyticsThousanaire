@@ -117,7 +117,7 @@ body {
     background: #030712;
 }
 
-/* Updated date controls - now more visible */
+/* Updated date controls - date picker box/icon now clearly visible */
 .date-controls {
     display: flex;
     align-items: center;
@@ -128,6 +128,7 @@ body {
     border: 2px solid rgba(59, 130, 246, 0.6);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
     min-width: 220px;
+    position: relative;
 }
 
 .date-controls span {
@@ -137,22 +138,61 @@ body {
     white-space: nowrap;
 }
 
-.date-controls input {
-    padding: 6px 10px;
+.date-controls input[type="date"] {
+    padding: 6px 10px 6px 10px;
     border-radius: 8px;
     border: 1px solid rgba(59, 130, 246, 0.8);
     background: rgba(2, 6, 23, 0.98);
-    color: #f9fafb;
+    color: #f9fafb !important;
     font-size: 12px;
     min-width: 140px;
     font-weight: 500;
+    cursor: pointer;
+    position: relative;
 }
 
-.date-controls input:focus {
+/* Make native date picker icon/arrow VISIBLE (Chrome/Safari/Webkit) */
+.date-controls input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 1 !important;
+    filter: brightness(1.2) invert(1) !important; /* Makes it white/visible */
+    cursor: pointer !important;
+    padding: 4px;
+    margin: 0;
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    right: 4px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(59, 130, 246, 0.8);
+    border-radius: 4px;
+}
+
+/* Firefox date picker button visibility */
+.date-controls input[type="date"]::-moz-calendar-picker-indicator {
+    opacity: 1 !important;
+    cursor: pointer !important;
+}
+
+/* Edge date picker */
+@supports (-ms-ime-align: auto) {
+    .date-controls input[type="date"]::-ms-clear,
+    .date-controls input[type="date"]::-ms-reveal {
+        opacity: 1 !important;
+        color: #3b82f6 !important;
+    }
+}
+
+.date-controls input[type="date"]:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: #3b82f6 !important;
     box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
     background: #020617;
+}
+
+.date-controls input[type="date"]:hover {
+    background: rgba(3, 7, 18, 0.98);
+    border-color: rgba(96, 165, 250, 0.8);
 }
 
 #filter-reset {
@@ -520,5 +560,10 @@ body {
 
     .date-controls {
         min-width: 180px;
+    }
+
+    .date-controls input[type="date"]::-webkit-calendar-picker-indicator {
+        width: 18px;
+        height: 18px;
     }
 }
