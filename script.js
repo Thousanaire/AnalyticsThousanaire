@@ -24,7 +24,7 @@ async function loadData() {
 
 
 // ---------------------------------------------
-// 2B) NEW ROBUST CSV PARSER (handles commas, quotes, breaks)
+// 2B) NEW ROBUST CSV PARSER
 // ---------------------------------------------
 function parseCSV(csv) {
     const rows = [];
@@ -71,6 +71,20 @@ function parseCSV(csv) {
 
 
 // ---------------------------------------------
+// TIME FORMATTER (HH:MM:SS)
+// ---------------------------------------------
+function toHHMMSS(seconds) {
+    seconds = Math.floor(seconds);
+
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = seconds % 60;
+
+    return `${h}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+
+// ---------------------------------------------
 // DATE PARSER FOR FORMAT: 1/1/2026
 // ---------------------------------------------
 function parseSheetDate(value) {
@@ -94,44 +108,36 @@ function parseSheetDate(value) {
 
 
 // ---------------------------------------------
-// 3) Calculate KPIs (CORRECTED TO MATCH YOUR RULES)
+// 3) Calculate KPIs (WITH HH:MM:SS DURATIONS)
 // ---------------------------------------------
 function calculateKPIs(rows) {
-    // Basic totals
     const offered = sum(rows, "OFFERED");
     const answered = sum(rows, "ANS. #");
     const abandoned = sum(rows, "ABD #");
     const flowOuts = sum(rows, "FLOW OUTS");
 
-    // Holds should ONLY be "# of HOLDS"
     const holds = sum(rows, "# of HOLDS");
 
-    // ASA components
     const totalWait = sum(rows, "Wait time");
     const timeToAbandon = sum(rows, "TIME TO ABANDON");
 
-    // Answered <30 sec
     const ansUnder30 = sum(rows, "TOTAL ANS < 30 SEC.");
 
-    // Duration totals
     const talkTime = sum(rows, "Talk Time");
     const holdTime = sum(rows, "Hold Time");
     const acwTime = sum(rows, "ACW Time");
     const handleTime = sum(rows, "Handle Time");
 
-    // Percentages
     const ansPct = offered ? (answered / offered) * 100 : 0;
     const abnPct = offered ? (abandoned / offered) * 100 : 0;
     const slPct = answered ? (ansUnder30 / answered) * 100 : 0;
 
-    // ASA
-    const asa = answered ? (totalWait - timeToAbandon) / answered : 0;
-
-    // Averages (your rules)
-    const avgTalk = answered ? talkTime / answered : 0;
-    const avgHold = answered ? holdTime / answered : 0;
-    const avgACW = answered ? acwTime / answered : 0;
-    const avgHandle = answered ? handleTime / answered : 0;
+    // Convert durations to seconds using × 86400
+    const asaSec = answered ? ((totalWait - timeToAbandon) / answered) * 86400 : 0;
+    const avgTalkSec = answered ? (talkTime / answered) * 86400 : 0;
+    const avgHoldSec = answered ? (holdTime / answered) * 86400 : 0;
+    const avgACWSec = answered ? (acwTime / answered) * 86400 : 0;
+    const avgHandleSec = answered ? (handleTime / answered) * 86400 : 0;
 
     return {
         offered,
@@ -144,11 +150,11 @@ function calculateKPIs(rows) {
         abn_pct: Math.round(abnPct),
         service_level_pct: Math.round(slPct),
 
-        asa: Math.round(asa),
-        avg_talk_time: Math.round(avgTalk),
-        avg_hold_time: Math.round(avgHold),
-        avg_acw: Math.round(avgACW),
-        aht: Math.round(avgHandle),
+        asa: toHHMMSS(asaSec),
+        avg_talk_time: toHHMMSS(avgTalkSec),
+        avg_hold_time: toHHMMSS(avgHoldSec),
+        avg_acw: toHHMMSS(avgACWSec),
+        aht: toHHMMSS(avgHandleSec),
 
         ans_under_30: ansUnder30
     };
@@ -193,7 +199,7 @@ function renderKPIs(kpis) {
 
         card.innerHTML = `
             <h3>${formatLabel(key)}</h3>
-            <p>${formatNumber(value)}</p>
+            <p>${value}</p>
         `;
 
         container.appendChild(card);
@@ -210,7 +216,7 @@ function formatLabel(label) {
         ans_pct: "Answer %",
         abn_pct: "Abandon %",
         service_level_pct: "Service Level %",
-        asa: "ASA (sec)",
+        asa: "ASA",
         avg_talk_time: "Avg Talk Time",
         avg_hold_time: "Avg Hold Time",
         avg_acw: "Avg ACW",
@@ -219,10 +225,6 @@ function formatLabel(label) {
     };
 
     return map[label] || label.replace(/_/g, " ").toUpperCase();
-}
-
-function formatNumber(num) {
-    return Number(num).toLocaleString();
 }
 
 
