@@ -37,14 +37,18 @@ function parseCSV(csv) {
         const next = csv[i + 1];
 
         if (char === '"' && insideQuotes && next === '"') {
+            // Escaped quote
             current += '"';
             i++;
         } else if (char === '"') {
+            // Toggle quote mode
             insideQuotes = !insideQuotes;
         } else if (char === ',' && !insideQuotes) {
+            // Column separator
             row.push(current);
             current = "";
         } else if ((char === '\n' || char === '\r') && !insideQuotes) {
+            // Row separator (real newline chars, not "\n" text)
             if (current.length > 0 || row.length > 0) {
                 row.push(current);
                 rows.push(row);
@@ -56,15 +60,20 @@ function parseCSV(csv) {
         }
     }
 
+    // Push last cell / row
     if (current.length > 0 || row.length > 0) {
         row.push(current);
         rows.push(row);
     }
 
+    if (rows.length === 0) return [];
+
     const headers = rows.shift().map(h => h.trim());
     return rows.map(cols => {
         const obj = {};
-        headers.forEach((h, i) => obj[h] = cols[i] || "");
+        headers.forEach((h, i) => {
+            obj[h] = (cols[i] || "").trim();
+        });
         return obj;
     });
 }
@@ -90,7 +99,16 @@ function toHHMMSS(seconds) {
 function parseSheetDate(value) {
     if (!value) return null;
 
-    const datePart = String(value).split(" ")[0].trim();
+    const str = String(value).trim();
+
+    // Support ISO-like export (yyyy-mm-dd) directly
+    if (str.includes("-") && /^\d{4}-\d{2}-\d{2}/.test(str)) {
+        const d = new Date(str);
+        return isNaN(d.getTime()) ? null : d;
+    }
+
+    // Fallback: mm/dd/yy or mm/dd/yyyy
+    const datePart = str.split(" ")[0].trim();
     const parts = datePart.split("/");
 
     if (parts.length !== 3) return null;
@@ -103,7 +121,8 @@ function parseSheetDate(value) {
 
     if (y < 100) y = 2000 + y;
 
-    return new Date(y, m - 1, d);
+    const dt = new Date(y, m - 1, d);
+    return isNaN(dt.getTime()) ? null : dt;
 }
 
 
@@ -161,9 +180,19 @@ function calculateKPIs(rows) {
     };
 }
 
+// Sanitizing numeric strings from CSV (handles commas, %, currency, etc.)
 function sum(rows, col) {
     return rows.reduce((total, r) => {
-        const val = Number(r[col] || 0);
+        let raw = r[col] ?? "";
+        raw = String(raw).trim();
+
+        // Strip non-numeric except digits, dot, minus
+        let cleaned = raw.replace(/[^0-9.\-]/g, "");
+        if (cleaned === "" || cleaned === "-" || cleaned === "." || cleaned === "-.") {
+            return total;
+        }
+
+        const val = parseFloat(cleaned);
         return total + (isNaN(val) ? 0 : val);
     }, 0);
 }
@@ -177,10 +206,10 @@ function groupByProgram(rows) {
 
     rows.forEach(r => {
         const program = r["Program"] || r["Programs"] || "Unknown";
-        const answered = Number(r["ANS. #"] || 0);
+        const answered = sum([r], "ANS. #"); // use same sanitizer
 
         if (!map[program]) map[program] = 0;
-        map[program] += isNaN(answered) ? 0 : answered;
+        map[program] += answered;
     });
 
     return Object.entries(map).map(([lob, value]) => ({ lob, value }));
