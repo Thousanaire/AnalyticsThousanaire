@@ -94,35 +94,44 @@ function parseSheetDate(value) {
 
 
 // ---------------------------------------------
-// 3) Calculate KPIs (UPDATED FOR YOUR COLUMNS)
+// 3) Calculate KPIs (CORRECTED TO MATCH YOUR RULES)
 // ---------------------------------------------
 function calculateKPIs(rows) {
+    // Basic totals
     const offered = sum(rows, "OFFERED");
     const answered = sum(rows, "ANS. #");
     const abandoned = sum(rows, "ABD #");
     const flowOuts = sum(rows, "FLOW OUTS");
 
-    const holds = sum(rows, "HOLDS") + sum(rows, "# of HOLDS");
+    // Holds should ONLY be "# of HOLDS"
+    const holds = sum(rows, "# of HOLDS");
 
+    // ASA components
     const totalWait = sum(rows, "Wait time");
     const timeToAbandon = sum(rows, "TIME TO ABANDON");
+
+    // Answered <30 sec
     const ansUnder30 = sum(rows, "TOTAL ANS < 30 SEC.");
 
+    // Duration totals
     const talkTime = sum(rows, "Talk Time");
     const holdTime = sum(rows, "Hold Time");
     const acwTime = sum(rows, "ACW Time");
+    const handleTime = sum(rows, "Handle Time");
 
+    // Percentages
     const ansPct = offered ? (answered / offered) * 100 : 0;
     const abnPct = offered ? (abandoned / offered) * 100 : 0;
     const slPct = answered ? (ansUnder30 / answered) * 100 : 0;
 
+    // ASA
     const asa = answered ? (totalWait - timeToAbandon) / answered : 0;
 
+    // Averages (your rules)
     const avgTalk = answered ? talkTime / answered : 0;
     const avgHold = answered ? holdTime / answered : 0;
     const avgACW = answered ? acwTime / answered : 0;
-
-    const aht = avgTalk + avgHold + avgACW;
+    const avgHandle = answered ? handleTime / answered : 0;
 
     return {
         offered,
@@ -139,7 +148,7 @@ function calculateKPIs(rows) {
         avg_talk_time: Math.round(avgTalk),
         avg_hold_time: Math.round(avgHold),
         avg_acw: Math.round(avgACW),
-        aht: Math.round(aht),
+        aht: Math.round(avgHandle),
 
         ans_under_30: ansUnder30
     };
@@ -197,7 +206,7 @@ function formatLabel(label) {
         answered: "Answered",
         abandoned: "Abandoned",
         flow_outs: "Flow Outs",
-        holds: "Holds",
+        holds: "# of Holds",
         ans_pct: "Answer %",
         abn_pct: "Abandon %",
         service_level_pct: "Service Level %",
@@ -205,7 +214,7 @@ function formatLabel(label) {
         avg_talk_time: "Avg Talk Time",
         avg_hold_time: "Avg Hold Time",
         avg_acw: "Avg ACW",
-        aht: "AHT",
+        aht: "Avg Handle Time",
         ans_under_30: "Answered <30s"
     };
 
@@ -375,4 +384,3 @@ loadData().then(rows => {
     renderKPIs(calculateKPIs(allRows));
     renderLOBChart(groupByProgram(allRows));
 });
-
