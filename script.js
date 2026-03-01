@@ -55,7 +55,6 @@ function parseCSV(csv) {
         rows.push(row);
     }
 
-    console.log("Parsed rows:", rows);
     return rows;
 }
 
@@ -65,16 +64,12 @@ function parseCSVRow(line) {
     let insideQuotes = false;
 
     for (let char of line) {
-        if (char === '"' && !insideQuotes) {
-            insideQuotes = true;
-        } else if (char === '"' && insideQuotes) {
-            insideQuotes = false;
-        } else if (char === "," && !insideQuotes) {
+        if (char === '"' && !insideQuotes) insideQuotes = true;
+        else if (char === '"' && insideQuotes) insideQuotes = false;
+        else if (char === "," && !insideQuotes) {
             result.push(current);
             current = "";
-        } else {
-            current += char;
-        }
+        } else current += char;
     }
 
     result.push(current);
@@ -83,42 +78,57 @@ function parseCSVRow(line) {
 
 
 // ---------------------------------------------
+// DATE PARSER FOR FORMAT: 1/1/2026
+// ---------------------------------------------
+function parseSheetDate(value) {
+    if (!value) return null;
+
+    const datePart = String(value).split(" ")[0].trim();
+    const parts = datePart.split("/");
+
+    if (parts.length !== 3) return null;
+
+    let [m, d, y] = parts.map(p => p.trim());
+
+    m = Number(m);
+    d = Number(d);
+    y = Number(y);
+
+    if (y < 100) y = 2000 + y;
+
+    return new Date(y, m - 1, d);
+}
+
+
+// ---------------------------------------------
 // 3) Calculate KPIs (UPDATED FOR YOUR COLUMNS)
 // ---------------------------------------------
 function calculateKPIs(rows) {
-    // Core counts
     const offered = sum(rows, "OFFERED");
     const answered = sum(rows, "ANS. #");
     const abandoned = sum(rows, "ABD #");
     const flowOuts = sum(rows, "FLOW OUTS");
 
-    // Holds (you have two columns)
     const holds = sum(rows, "HOLDS") + sum(rows, "# of HOLDS");
 
-    // Speed-to-answer metrics
     const totalWait = sum(rows, "Wait time");
     const timeToAbandon = sum(rows, "TIME TO ABANDON");
     const ansUnder30 = sum(rows, "TOTAL ANS < 30 SEC.");
 
-    // Time-based metrics
     const talkTime = sum(rows, "Talk Time");
     const holdTime = sum(rows, "Hold Time");
     const acwTime = sum(rows, "ACW Time");
 
-    // Derived percentages
     const ansPct = offered ? (answered / offered) * 100 : 0;
     const abnPct = offered ? (abandoned / offered) * 100 : 0;
     const slPct = answered ? (ansUnder30 / answered) * 100 : 0;
 
-    // ASA (your corrected formula)
     const asa = answered ? (totalWait - timeToAbandon) / answered : 0;
 
-    // Averages
     const avgTalk = answered ? talkTime / answered : 0;
     const avgHold = answered ? holdTime / answered : 0;
     const avgACW = answered ? acwTime / answered : 0;
 
-    // AHT = Talk + Hold + ACW
     const aht = avgTalk + avgHold + avgACW;
 
     return {
@@ -128,19 +138,16 @@ function calculateKPIs(rows) {
         flow_outs: flowOuts,
         holds,
 
-        // Percentages
         ans_pct: Math.round(ansPct),
         abn_pct: Math.round(abnPct),
         service_level_pct: Math.round(slPct),
 
-        // Time-based KPIs
         asa: Math.round(asa),
         avg_talk_time: Math.round(avgTalk),
         avg_hold_time: Math.round(avgHold),
         avg_acw: Math.round(avgACW),
         aht: Math.round(aht),
 
-        // Additional metrics
         ans_under_30: ansUnder30
     };
 }
@@ -275,9 +282,10 @@ function populateFilters(rows) {
         if (r["Month"]) months.add(r["Month"]);
         if (r["Year"]) years.add(r["Year"]);
         if (r["Quarters"]) quarters.add(r["Quarters"]);
+
         if (r["DATE"]) {
-            const d = new Date(r["DATE"]);
-            if (!isNaN(d)) dates.push(d);
+            const d = parseSheetDate(r["DATE"]);
+            if (d) dates.push(d);
         }
     });
 
@@ -289,11 +297,8 @@ function populateFilters(rows) {
 
     if (dates.length > 0) {
         dates.sort((a, b) => a - b);
-        const minDate = dates[0];
-        const maxDate = dates[dates.length - 1];
-
-        startInput.value = toInputDate(minDate);
-        endInput.value = toInputDate(maxDate);
+        startInput.value = toInputDate(dates[0]);
+        endInput.value = toInputDate(dates[dates.length - 1]);
     }
 }
 
@@ -331,9 +336,8 @@ function applyFilters() {
         if (quarterVal && r["Quarters"] !== quarterVal) return false;
 
         if (startDate || endDate) {
-            if (!r["DATE"]) return false;
-            const d = new Date(r["DATE"]);
-            if (isNaN(d)) return false;
+            const d = parseSheetDate(r["DATE"]);
+            if (!d) return false;
             if (startDate && d < startDate) return false;
             if (endDate && d > endDate) return false;
         }
@@ -349,7 +353,7 @@ function applyFilters() {
 }
 
 function attachFilterEvents() {
-    const ids = [
+    [
         "filter-program",
         "filter-day",
         "filter-month",
@@ -357,12 +361,9 @@ function attachFilterEvents() {
         "filter-quarter",
         "filter-date-start",
         "filter-date-end"
-    ];
-
-    ids.forEach(id => {
+    ].forEach(id => {
         const el = document.getElementById(id);
-        if (!el) return;
-        el.addEventListener("change", applyFilters);
+        if (el) el.addEventListener("change", applyFilters);
     });
 }
 
@@ -371,23 +372,13 @@ function attachFilterEvents() {
 // 8) Initialize Dashboard
 // ---------------------------------------------
 loadData().then(rows => {
-    if (!rows || rows.length === 0) {
-        console.warn("No data loaded from Google Sheet.");
-        return;
-    }
+    if (!rows || rows.length === 0) return;
 
     allRows = rows;
 
-    // Populate filters from full dataset
     populateFilters(allRows);
-
-    // Attach filter listeners
     attachFilterEvents();
 
-    // Initial render with all data
-    const kpis = calculateKPIs(allRows);
-    renderKPIs(kpis);
-
-    const lobData = groupByProgram(allRows);
-    renderLOBChart(lobData);
+    renderKPIs(calculateKPIs(allRows));
+    renderLOBChart(groupByProgram(allRows));
 });
