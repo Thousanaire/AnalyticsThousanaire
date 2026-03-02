@@ -451,13 +451,13 @@ body {
 }
 
 /* ------------------------------
-   RESPONSIVE
+   RESPONSIVE - MOBILE iPHONE FIXES ONLY
+   (Desktop/laptop 100% unchanged above 768px)
 --------------------------------*/
 @media (max-width: 1200px) {
     .dashboard-grid {
         grid-template-columns: 1fr;
     }
-
     .right-grid {
         grid-template-columns: 1fr;
         grid-template-rows: auto;
@@ -468,22 +468,43 @@ body {
     .app-shell {
         padding: 10px;
     }
-
     .top-bar {
         flex-direction: column;
         align-items: flex-start;
         gap: 6px;
     }
-
     .control-bar {
         flex-direction: column;
         align-items: flex-start;
     }
-
     .date-controls {
         width: 100%;
         justify-content: flex-start;
         flex-wrap: wrap;
+    }
+    
+    /* iPhone Safari CSS Grid Bug Fix - CRITICAL */
+    .dashboard-grid {
+        display: block !important;
+        grid-template-columns: none !important;
+    }
+    
+    .left-panel, .right-panel {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-bottom: 12px;
+        display: block !important;
+    }
+    
+    .right-grid {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px;
+    }
+    
+    .compact-kpi-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px;
     }
 }
 
@@ -491,5 +512,22 @@ body {
     .top-left h1 {
         font-size: 18px;
     }
+    
+    /* iPhone SE/tiny phones: 1 KPI per row */
+    .compact-kpi-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    /* Fixed chart heights prevent collapse */
+    .chart-card {
+        height: 160px !important;
+    }
+    
+    .chart-inner {
+        height: 120px !important;
+    }
+    
+    .app-shell {
+        padding: 8px;
+    }
 }
-
