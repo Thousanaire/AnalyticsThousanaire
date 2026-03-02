@@ -22,8 +22,8 @@ body {
     min-height: 100vh;
     display: flex;
     flex-direction: column;
-    padding: clamp(12px, 4vw, 16px);
-    gap: clamp(10px, 3vw, 12px);
+    padding: 16px;
+    gap: 12px;
 }
 
 /* ------------------------------
@@ -33,7 +33,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: clamp(10px, 3vw, 12px) clamp(14px, 4vw, 16px);
+    padding: 12px 16px;
     background: radial-gradient(circle at top left, rgba(55, 65, 81, 0.4), rgba(17, 24, 39, 0.95));
     border-radius: 14px;
     border: 1px solid rgba(75, 85, 99, 0.6);
@@ -58,13 +58,13 @@ body {
 .top-right {
     display: flex;
     align-items: center;
-    gap: clamp(8px, 2vw, 12px);
+    gap: 12px;
 }
 
 .status-pill {
-    padding: clamp(5px, 1.5vw, 6px) clamp(12px, 3vw, 14px);
+    padding: 6px 14px;
     border-radius: 999px;
-    font-size: clamp(10px, 2.5vw, 12px);
+    font-size: clamp(10px, 3vw, 12px);
     font-weight: 500;
     color: #d1fae5;
     background: linear-gradient(135deg, #10b981, #047857);
@@ -90,7 +90,7 @@ body {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: clamp(6px, 1.8vw, 10px);
+    gap: clamp(6px, 2vw, 10px);
     padding: clamp(8px, 2vw, 10px) clamp(12px, 3vw, 14px);
     background: linear-gradient(135deg, rgba(31, 41, 55, 0.9), rgba(15, 23, 42, 0.9));
     border-radius: 14px;
@@ -105,7 +105,7 @@ body {
     background: #020617;
     color: #e5e7eb;
     font-size: clamp(10px, 2.5vw, 12px);
-    min-width: clamp(90px, 20vw, 110px);
+    min-width: clamp(90px, 22vw, 110px);
     cursor: pointer;
     transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 }
@@ -139,7 +139,7 @@ body {
     background: #020617;
     color: #f9fafb;
     font-size: clamp(9px, 2vw, 11px);
-    min-width: clamp(100px, 24vw, 120px);
+    min-width: clamp(100px, 25vw, 120px);
 }
 
 #filter-reset {
@@ -160,24 +160,53 @@ body {
 }
 
 /* ------------------------------
-   DASHBOARD GRID - FLUID 2-COLUMN
+   ACTIVE FILTER TAGS
+--------------------------------*/
+.active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(6px, 1.5vw, 8px);
+    padding: 0 clamp(2px, 0.5vw, 2px);
+    min-height: 18px;
+}
+
+.filter-tag {
+    background: radial-gradient(circle at top left, #2563eb, #1e3a8a);
+    color: #dbeafe;
+    padding: clamp(3px, 0.8vw, 4px) clamp(8px, 2vw, 10px);
+    border-radius: 999px;
+    font-size: clamp(9px, 2vw, 11px);
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.5);
+    transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+}
+
+.filter-tag:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 26px rgba(37, 99, 235, 0.7);
+}
+
+/* ------------------------------
+   DASHBOARD GRID - IDENTICAL ON ALL DEVICES
 --------------------------------*/
 .dashboard-grid {
     display: grid;
-    grid-template-columns: clamp(300px, 32vw, 380px) minmax(0, 1fr);
+    grid-template-columns: clamp(320px, 32vw, 380px) minmax(0, 1fr);
     gap: clamp(12px, 3vw, 16px);
     flex: 1;
     min-height: 0;
     margin-top: 4px;
 }
 
-/* Shared panel styling */
+/* Shared panel styling (layered boxes) */
 .panel {
     background: radial-gradient(circle at top left, rgba(31, 41, 55, 0.9), rgba(15, 23, 42, 0.98));
     border-radius: 18px;
     border: 1px solid rgba(75, 85, 99, 0.8);
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.9), 0 0 0 1px rgba(17, 24, 39, 0.9);
-    padding: clamp(12px, 3vw, 14px);
+    box-shadow:
+        0 24px 60px rgba(0, 0, 0, 0.9),
+        0 0 0 1px rgba(17, 24, 39, 0.9);
+    padding: clamp(12px, 3vw, 14px) clamp(12px, 3vw, 14px) clamp(16px, 4vw, 18px) clamp(12px, 3vw, 14px);
     display: flex;
     flex-direction: column;
     min-height: 0;
@@ -230,19 +259,21 @@ body {
 .kpi-card {
     background: radial-gradient(circle at top left, #020617, #020617);
     border-radius: clamp(10px, 2vw, 12px);
-    padding: clamp(8px, 2vw, 10px);
+    padding: clamp(8px, 2vw, 10px) clamp(8px, 2vw, 10px) clamp(10px, 2.5vw, 12px) clamp(8px, 2vw, 10px);
     box-shadow: 0 14px 28px rgba(0, 0, 0, 0.85);
     border: 1px solid rgba(31, 41, 55, 0.9);
     position: relative;
     overflow: hidden;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 }
 
 .kpi-card::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(96, 165, 250, 0.45), transparent 55%), radial-gradient(circle at top left, rgba(59, 130, 246, 0.55), transparent 65%);
+    background:
+        linear-gradient(135deg, rgba(96, 165, 250, 0.45), transparent 55%),
+        radial-gradient(circle at top left, rgba(59, 130, 246, 0.55), transparent 65%);
     opacity: 0;
     mix-blend-mode: screen;
     pointer-events: none;
@@ -266,15 +297,31 @@ body {
 }
 
 /* KPI STATES */
-.kpi-card.good { border-color: rgba(16, 185, 129, 0.7); box-shadow: 0 16px 40px rgba(16, 185, 129, 0.65); }
-.kpi-card.warning { border-color: rgba(245, 158, 11, 0.7); box-shadow: 0 16px 40px rgba(245, 158, 11, 0.55); }
-.kpi-card.danger { border-color: rgba(239, 68, 68, 0.8); box-shadow: 0 16px 40px rgba(239, 68, 68, 0.7); }
+.kpi-card.good {
+    border-color: rgba(16, 185, 129, 0.7);
+    box-shadow: 0 16px 40px rgba(16, 185, 129, 0.65);
+}
 
-.kpi-card:hover::before { opacity: 0.24; }
-.kpi-card:hover { transform: translateY(-1px); }
+.kpi-card.warning {
+    border-color: rgba(245, 158, 11, 0.7);
+    box-shadow: 0 16px 40px rgba(245, 158, 11, 0.55);
+}
+
+.kpi-card.danger {
+    border-color: rgba(239, 68, 68, 0.8);
+    box-shadow: 0 16px 40px rgba(239, 68, 68, 0.7);
+}
+
+.kpi-card:hover::before {
+    opacity: 0.24;
+}
+
+.kpi-card:hover {
+    transform: translateY(-1px);
+}
 
 /* ------------------------------
-   CHARTS - FIXED FOR MOBILE
+   RIGHT 2x2 GRID OF CHARTS
 --------------------------------*/
 .right-grid {
     display: grid;
@@ -285,45 +332,79 @@ body {
     min-height: 0;
 }
 
-/* CRITICAL: Chart containers with proper aspect ratios */
+/* Chart card as a grid item */
 .chart-card {
     background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.95), rgba(3, 7, 18, 0.98));
     border-radius: clamp(12px, 2.5vw, 14px);
-    padding: clamp(8px, 2vw, 10px);
+    padding: clamp(6px, 1.5vw, 8px) clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 10px) clamp(6px, 1.5vw, 8px);
     border: 1px solid rgba(55, 65, 81, 0.9);
     box-shadow: 0 22px 50px rgba(0, 0, 0, 0.9);
     display: flex;
     flex-direction: column;
     min-height: 0;
-    /* FIXED: Proper aspect ratio for charts */
-    aspect-ratio: 1;
-    max-height: clamp(140px, 28vw, 180px);
 }
 
+/* Chart titles inside cards */
 .chart-title-sm {
     font-size: clamp(10px, 2.5vw, 12px);
     font-weight: 600;
     color: #e5e7eb;
-    margin-bottom: clamp(4px, 1vw, 6px);
-    flex-shrink: 0;
+    margin-bottom: clamp(3px, 1vw, 4px);
 }
 
+/* Inner wrapper controls chart height */
 .chart-inner {
     position: relative;
     flex: 1;
     min-height: 0;
-    /* FIXED: Ensure canvas fills properly */
-    display: flex;
-    align-items: stretch;
-    justify-content: stretch;
 }
 
+/* Canvas fills its card */
 .chart-inner canvas {
     position: absolute;
     inset: 0;
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: contain;
+    width: 100%;
+    height: 100%;
+}
+
+/* ------------------------------
+   INSIGHTS TABLE (optional)
+--------------------------------*/
+.compact-insights {
+    font-size: clamp(10px, 2.5vw, 12px);
+    max-height: clamp(120px, 30vh, 150px);
+    overflow-y: auto;
+}
+
+.compact-insights table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.compact-insights th,
+.compact-insights td {
+    padding: clamp(4px, 1vw, 6px) clamp(6px, 1.5vw, 8px);
+    text-align: left;
+    border-bottom: 1px solid rgba(55, 65, 81, 0.9);
+}
+
+.compact-insights th {
+    background: #020617;
+    font-weight: 600;
+    font-size: clamp(9px, 2vw, 11px);
+    color: #e5e7eb;
+    position: sticky;
+    top: 0;
+}
+
+.top-performer {
+    color: #6ee7b7;
+    font-weight: 600;
+}
+
+.worst-performer {
+    color: #fecaca;
+    font-weight: 600;
 }
 
 /* ------------------------------
@@ -355,7 +436,16 @@ body {
     transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
+/* ------------------------------
+   ANIMATIONS
+--------------------------------*/
 @keyframes slideUp {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
