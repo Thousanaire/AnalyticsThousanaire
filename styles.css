@@ -42,7 +42,7 @@ body {
 }
 
 .top-left h1 {
-    font-size: clamp(18px, 4vw, 22px);
+    font-size: 22px;
     font-weight: 700;
     letter-spacing: 0.04em;
     color: #f9fafb;
@@ -50,7 +50,7 @@ body {
 
 .subtitle {
     display: block;
-    font-size: clamp(10px, 2.5vw, 12px);
+    font-size: 12px;
     color: #9ca3af;
     margin-top: 2px;
 }
@@ -64,7 +64,7 @@ body {
 .status-pill {
     padding: 6px 14px;
     border-radius: 999px;
-    font-size: clamp(10px, 3vw, 12px);
+    font-size: 12px;
     font-weight: 500;
     color: #d1fae5;
     background: linear-gradient(135deg, #10b981, #047857);
@@ -90,8 +90,8 @@ body {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: clamp(6px, 2vw, 10px);
-    padding: clamp(8px, 2vw, 10px) clamp(12px, 3vw, 14px);
+    gap: 10px;
+    padding: 10px 14px;
     background: linear-gradient(135deg, rgba(31, 41, 55, 0.9), rgba(15, 23, 42, 0.9));
     border-radius: 14px;
     border: 1px solid rgba(75, 85, 99, 0.7);
@@ -99,13 +99,13 @@ body {
 }
 
 .control-bar select {
-    padding: clamp(6px, 1.5vw, 8px) clamp(10px, 2vw, 12px);
+    padding: 8px 12px;
     border-radius: 10px;
     border: 1px solid #374151;
     background: #020617;
     color: #e5e7eb;
-    font-size: clamp(10px, 2.5vw, 12px);
-    min-width: clamp(90px, 22vw, 110px);
+    font-size: 12px;
+    min-width: 110px;
     cursor: pointer;
     transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 }
@@ -120,35 +120,35 @@ body {
 .date-controls {
     display: flex;
     align-items: center;
-    gap: clamp(4px, 1vw, 6px);
-    padding: clamp(4px, 1vw, 6px) clamp(8px, 2vw, 10px);
+    gap: 6px;
+    padding: 6px 10px;
     border-radius: 999px;
     background: rgba(15, 23, 42, 0.9);
     border: 1px solid rgba(55, 65, 81, 0.8);
 }
 
 .date-controls span {
-    font-size: clamp(9px, 2vw, 11px);
+    font-size: 11px;
     color: #9ca3af;
 }
 
 .date-controls input {
-    padding: clamp(4px, 1vw, 5px) clamp(7px, 1.5vw, 9px);
+    padding: 5px 9px;
     border-radius: 999px;
     border: 1px solid #4b5563;
     background: #020617;
     color: #f9fafb;
-    font-size: clamp(9px, 2vw, 11px);
-    min-width: clamp(100px, 25vw, 120px);
+    font-size: 11px;
+    min-width: 120px;
 }
 
 #filter-reset {
-    padding: clamp(5px, 1.2vw, 6px) clamp(12px, 2.5vw, 14px);
+    padding: 6px 14px;
     background: linear-gradient(135deg, #3b82f6, #1d4ed8);
     color: #eff6ff;
     border: none;
     border-radius: 999px;
-    font-size: clamp(9px, 2vw, 11px);
+    font-size: 11px;
     font-weight: 600;
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
@@ -165,17 +165,17 @@ body {
 .active-filters {
     display: flex;
     flex-wrap: wrap;
-    gap: clamp(6px, 1.5vw, 8px);
-    padding: 0 clamp(2px, 0.5vw, 2px);
+    gap: 8px;
+    padding: 0 2px;
     min-height: 18px;
 }
 
 .filter-tag {
     background: radial-gradient(circle at top left, #2563eb, #1e3a8a);
     color: #dbeafe;
-    padding: clamp(3px, 0.8vw, 4px) clamp(8px, 2vw, 10px);
+    padding: 4px 10px;
     border-radius: 999px;
-    font-size: clamp(9px, 2vw, 11px);
+    font-size: 11px;
     cursor: pointer;
     box-shadow: 0 6px 16px rgba(37, 99, 235, 0.5);
     transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
@@ -187,18 +187,60 @@ body {
 }
 
 /* ------------------------------
-   DASHBOARD GRID - IDENTICAL ON ALL DEVICES
+   DASHBOARD GRID - DESKTOP LAYOUT
 --------------------------------*/
 .dashboard-grid {
     display: grid;
-    grid-template-columns: clamp(320px, 32vw, 380px) minmax(0, 1fr);
-    gap: clamp(12px, 3vw, 16px);
+    grid-template-columns: 380px minmax(0, 1fr);
+    gap: 16px;
     flex: 1;
     min-height: 0;
     margin-top: 4px;
 }
 
-/* Shared panel styling (layered boxes) */
+/* MOBILE: Scale down proportionally (same layout, smaller) */
+@media (max-width: 1200px) {
+    .dashboard-grid {
+        grid-template-columns: clamp(280px, 35vw, 380px) minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .app-shell {
+        padding: 12px;
+        gap: 10px;
+    }
+    
+    .dashboard-grid {
+        grid-template-columns: clamp(240px, 38vw, 320px) minmax(0, 1fr);
+        gap: 12px;
+    }
+    
+    .top-bar {
+        padding: 10px 12px;
+    }
+    
+    .control-bar {
+        padding: 8px 12px;
+        gap: 8px;
+    }
+    
+    .control-bar select {
+        min-width: 90px;
+        font-size: 11px;
+        padding: 6px 10px;
+    }
+    
+    .date-controls input {
+        min-width: 100px;
+        font-size: 10px;
+        padding: 4px 8px;
+    }
+}
+
+/* ------------------------------
+   Shared panel styling (layered boxes)
+--------------------------------*/
 .panel {
     background: radial-gradient(circle at top left, rgba(31, 41, 55, 0.9), rgba(15, 23, 42, 0.98));
     border-radius: 18px;
@@ -206,7 +248,7 @@ body {
     box-shadow:
         0 24px 60px rgba(0, 0, 0, 0.9),
         0 0 0 1px rgba(17, 24, 39, 0.9);
-    padding: clamp(12px, 3vw, 14px) clamp(12px, 3vw, 14px) clamp(16px, 4vw, 18px) clamp(12px, 3vw, 14px);
+    padding: 14px 14px 18px 14px;
     display: flex;
     flex-direction: column;
     min-height: 0;
@@ -229,11 +271,11 @@ body {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    margin-bottom: clamp(8px, 2vw, 10px);
+    margin-bottom: 10px;
 }
 
 .panel-header h2 {
-    font-size: clamp(12px, 3vw, 14px);
+    font-size: 14px;
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
@@ -241,7 +283,7 @@ body {
 }
 
 .panel-subtitle {
-    font-size: clamp(9px, 2.5vw, 11px);
+    font-size: 11px;
     color: #9ca3af;
 }
 
@@ -250,16 +292,16 @@ body {
 --------------------------------*/
 .compact-kpi-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, clamp(130px, 22vw, 150px));
-    gap: clamp(8px, 2vw, 10px);
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
     overflow-y: auto;
-    padding-right: clamp(1px, 0.5vw, 2px);
+    padding-right: 2px;
 }
 
 .kpi-card {
     background: radial-gradient(circle at top left, #020617, #020617);
-    border-radius: clamp(10px, 2vw, 12px);
-    padding: clamp(8px, 2vw, 10px) clamp(8px, 2vw, 10px) clamp(10px, 2.5vw, 12px) clamp(8px, 2vw, 10px);
+    border-radius: 12px;
+    padding: 10px 10px 12px 10px;
     box-shadow: 0 14px 28px rgba(0, 0, 0, 0.85);
     border: 1px solid rgba(31, 41, 55, 0.9);
     position: relative;
@@ -281,8 +323,8 @@ body {
 }
 
 .kpi-card h3 {
-    margin-bottom: clamp(3px, 1vw, 4px);
-    font-size: clamp(9px, 2vw, 10px);
+    margin-bottom: 4px;
+    font-size: 10px;
     color: #9ca3af;
     font-weight: 600;
     letter-spacing: 0.12em;
@@ -291,7 +333,7 @@ body {
 
 .kpi-card p {
     margin: 0;
-    font-size: clamp(18px, 5vw, 20px);
+    font-size: 20px;
     font-weight: 700;
     color: #f9fafb;
 }
@@ -321,22 +363,22 @@ body {
 }
 
 /* ------------------------------
-   RIGHT 2x2 GRID OF CHARTS
+   RIGHT 2x2 GRID OF CHARTS - FIXED
 --------------------------------*/
 .right-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-rows: repeat(2, minmax(0, 1fr));
-    gap: clamp(8px, 2vw, 10px);
+    gap: 10px;
     flex: 1;
     min-height: 0;
 }
 
-/* Chart card as a grid item */
+/* Chart card - PERFECT SQUARE PROPORTIONS */
 .chart-card {
     background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.95), rgba(3, 7, 18, 0.98));
-    border-radius: clamp(12px, 2.5vw, 14px);
-    padding: clamp(6px, 1.5vw, 8px) clamp(6px, 1.5vw, 8px) clamp(8px, 2vw, 10px) clamp(6px, 1.5vw, 8px);
+    border-radius: 14px;
+    padding: 8px;
     border: 1px solid rgba(55, 65, 81, 0.9);
     box-shadow: 0 22px 50px rgba(0, 0, 0, 0.9);
     display: flex;
@@ -344,35 +386,41 @@ body {
     min-height: 0;
 }
 
-/* Chart titles inside cards */
-.chart-title-sm {
-    font-size: clamp(10px, 2.5vw, 12px);
-    font-weight: 600;
-    color: #e5e7eb;
-    margin-bottom: clamp(3px, 1vw, 4px);
+/* MOBILE: Scale charts proportionally */
+@media (max-width: 768px) {
+    .chart-card {
+        padding: 6px;
+    }
 }
 
-/* Inner wrapper controls chart height */
+.chart-title-sm {
+    font-size: 12px;
+    font-weight: 600;
+    color: #e5e7eb;
+    margin-bottom: 4px;
+}
+
+/* FIXED: Chart container with proper aspect ratio */
 .chart-inner {
     position: relative;
     flex: 1;
     min-height: 0;
+    aspect-ratio: 1; /* PERFECT SQUARES */
 }
 
-/* Canvas fills its card */
 .chart-inner canvas {
     position: absolute;
     inset: 0;
-    width: 100%;
-    height: 100%;
+    width: 100% !important;
+    height: 100% !important;
 }
 
 /* ------------------------------
    INSIGHTS TABLE (optional)
 --------------------------------*/
 .compact-insights {
-    font-size: clamp(10px, 2.5vw, 12px);
-    max-height: clamp(120px, 30vh, 150px);
+    font-size: 12px;
+    max-height: 150px;
     overflow-y: auto;
 }
 
@@ -383,7 +431,7 @@ body {
 
 .compact-insights th,
 .compact-insights td {
-    padding: clamp(4px, 1vw, 6px) clamp(6px, 1.5vw, 8px);
+    padding: 6px 8px;
     text-align: left;
     border-bottom: 1px solid rgba(55, 65, 81, 0.9);
 }
@@ -391,7 +439,7 @@ body {
 .compact-insights th {
     background: #020617;
     font-weight: 600;
-    font-size: clamp(9px, 2vw, 11px);
+    font-size: 11px;
     color: #e5e7eb;
     position: sticky;
     top: 0;
@@ -412,19 +460,19 @@ body {
 --------------------------------*/
 .alerts-container {
     position: fixed;
-    bottom: clamp(12px, 4vw, 20px);
-    right: clamp(12px, 4vw, 20px);
-    max-width: clamp(280px, 80vw, 320px);
+    bottom: 20px;
+    right: 20px;
+    max-width: 320px;
     z-index: 100;
 }
 
 .alert {
     background: linear-gradient(135deg, #ef4444, #b91c1c);
     color: #fee2e2;
-    padding: clamp(8px, 2vw, 10px) clamp(12px, 3vw, 14px);
+    padding: 10px 14px;
     border-radius: 10px;
-    margin-top: clamp(4px, 1vw, 6px);
-    font-size: clamp(11px, 3vw, 13px);
+    margin-top: 6px;
+    font-size: 13px;
     font-weight: 500;
     box-shadow: 0 14px 36px rgba(239, 68, 68, 0.6);
     animation: slideUp 0.25s ease-out;
