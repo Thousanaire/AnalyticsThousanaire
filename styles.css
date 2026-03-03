@@ -491,4 +491,74 @@ body {
     .top-left h1 {
         font-size: 18px;
     }
+
+    .app-shell { 
+        padding: 8px; 
+        gap: 8px; 
+    }
+    
+    .dashboard-grid { 
+        grid-template-columns: 1fr; 
+        gap: 8px; 
+    }
+    
+    .left-panel { 
+        order: 2; /* KPIs below charts on mobile */
+    }
+    
+    .right-panel { 
+        order: 1; 
+    }
+    
+    .right-grid { 
+        grid-template-columns: 1fr !important; 
+        grid-template-rows: repeat(4, minmax(0,1fr)); 
+        gap: 8px; 
+    }
+    
+    .panel { 
+        padding: 10px !important; 
+        border-radius: 12px; 
+    }
+    
+    .compact-kpi-grid { 
+        grid-template-columns: repeat(2,1fr); 
+        gap: 8px; 
+    }
+    
+    .kpi-card { 
+        padding: 8px 8px 10px; 
+    }
+    
+    .kpi-card p { 
+        font-size: 16px; 
+    }
+    
+    .panel-header h2 { 
+        font-size: 12px; 
+    }
+    
+    .chart-card { 
+        padding: 6px !important; 
+        border-radius: 10px; 
+    }
+    
+    .chart-title-sm { 
+        font-size: 10px; 
+        margin-bottom: 2px; 
+    }
+    
+    /* Reduce shadows/paddings globally */
+    .top-bar, 
+    .control-bar, 
+    .chart-card, 
+    .kpi-card { 
+        box-shadow: 0 8px 20px rgba(0,0,0,0.6) !important; 
+    }
+    
+    .control-bar select { 
+        min-width: 90px; 
+        font-size: 11px; 
+        padding: 6px 8px; 
+    }
 }
