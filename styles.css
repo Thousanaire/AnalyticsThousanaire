@@ -15,7 +15,7 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
     background: radial-gradient(circle at top left, #111827 0, #020617 45%, #020617 100%);
     color: #e5e7eb;
-    overflow-x: hidden; /* prevents weird scroll during scale */
+    overflow-x: hidden; /* prevents layout jump during scaling */
 }
 
 /* Main canvas */
@@ -143,6 +143,50 @@ body {
     min-width: 120px;
 }
 
+#filter-reset {
+    padding: 6px 14px;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: #eff6ff;
+    border: none;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+}
+
+#filter-reset:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 18px rgba(59, 130, 246, 0.55);
+}
+
+/* ------------------------------
+   ACTIVE FILTER TAGS
+--------------------------------*/
+.active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 2px;
+    min-height: 18px;
+}
+
+.filter-tag {
+    background: radial-gradient(circle at top left, #2563eb, #1e3a8a);
+    color: #dbeafe;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(37, 99, 235, 0.5);
+    transition: transform 0.2s, box-shadow 0.2s, opacity 0.2s;
+}
+
+.filter-tag:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 26px rgba(37, 99, 235, 0.7);
+}
+
 /* ------------------------------
    DASHBOARD GRID (LOCKED DESKTOP)
 --------------------------------*/
@@ -155,13 +199,17 @@ body {
     margin-top: 4px;
 }
 
-/* All your existing styles remain exactly the same above this point */
+/* RIGHT GRID */
+.right-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    flex: 1;
+    min-height: 0;
+}
 
-/* ------------------------------
-   REMOVE STACKING RESPONSIVE
---------------------------------*/
-/* (Removed the old 1200px and 768px stacking layout rules) */
-
+/* (All other sections remain exactly as you originally provided: KPI cards, panels, charts, alerts, animations, insights table) */
 
 /* ------------------------------
    MOBILE — SCALE DESKTOP VIEW
@@ -173,8 +221,8 @@ body {
     }
 
     .app-shell {
-        width: 1200px;          /* desktop width */
-        transform: scale(0.65); /* adjust 0.6–0.75 if desired */
+        min-width: 1200px;      /* locks desktop layout */
+        transform: scale(0.68); /* ideal balance for phones */
         transform-origin: top left;
     }
 }
