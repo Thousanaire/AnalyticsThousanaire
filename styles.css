@@ -499,21 +499,24 @@ body {
     
     .dashboard-grid { 
         grid-template-columns: 1fr; 
-        gap: 8px; 
+        gap: 12px; 
     }
     
     .left-panel { 
-        order: 2; /* KPIs below charts on mobile */
+        order: 2; 
+        max-height: 280px; /* Limit KPI panel height */
     }
     
     .right-panel { 
         order: 1; 
+        flex: none; /* Don't grow */
     }
     
     .right-grid { 
         grid-template-columns: 1fr !important; 
-        grid-template-rows: repeat(4, minmax(0,1fr)); 
+        grid-template-rows: repeat(4, 140px); /* FIXED HEIGHTS - no overlap */
         gap: 8px; 
+        height: 620px; /* Total 4x140px + 3x8px gaps */
     }
     
     .panel { 
@@ -522,16 +525,22 @@ body {
     }
     
     .compact-kpi-grid { 
-        grid-template-columns: repeat(2,1fr); 
-        gap: 8px; 
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 6px; 
+        height: 100%;
     }
     
     .kpi-card { 
-        padding: 8px 8px 10px; 
+        padding: 6px 6px 8px !important; 
+        margin: 0;
     }
     
     .kpi-card p { 
-        font-size: 16px; 
+        font-size: 14px !important; 
+    }
+    
+    .kpi-card h3 { 
+        font-size: 8px !important;
     }
     
     .panel-header h2 { 
@@ -541,6 +550,7 @@ body {
     .chart-card { 
         padding: 6px !important; 
         border-radius: 10px; 
+        height: 140px; /* Match grid row */
     }
     
     .chart-title-sm { 
@@ -548,17 +558,23 @@ body {
         margin-bottom: 2px; 
     }
     
-    /* Reduce shadows/paddings globally */
+    /* Reduce shadows globally */
     .top-bar, 
     .control-bar, 
     .chart-card, 
-    .kpi-card { 
-        box-shadow: 0 8px 20px rgba(0,0,0,0.6) !important; 
+    .kpi-card, 
+    .panel { 
+        box-shadow: 0 6px 16px rgba(0,0,0,0.6) !important; 
+    }
+    
+    .control-bar {
+        gap: 6px;
+        padding: 8px 10px;
     }
     
     .control-bar select { 
-        min-width: 90px; 
+        min-width: 85px; 
         font-size: 11px; 
-        padding: 6px 8px; 
+        padding: 5px 6px; 
     }
 }
