@@ -2,11 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-
-    <!-- Updated viewport for locked desktop scaling -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-
-    <title>SCOTTSON'S ANALYTICS DASHBOARD</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCOTTSON'S ANALYTICS DASHBAORD</title>
 
     <!-- Styles -->
     <link rel="stylesheet" href="styles.css">
@@ -22,34 +19,41 @@
         <!-- TOP BAR -->
         <header class="top-bar">
             <div class="top-left">
-                <h1>SCOTTSON'S ANALYTICS DASHBOARD</h1>
+                <h1>SCOTTSON'S ANALYTICS DASHBAORD</h1>
                 <span class="subtitle">Fashion Contact Center Performance Overview</span>
             </div>
+            
         </header>
 
         <!-- CONTROL STRIP -->
         <section class="control-bar">
 
+            <!-- Business (was Program) -->
             <select id="filter-program">
                 <option value="">Business</option>
             </select>
 
+            <!-- Day -->
             <select id="filter-day">
                 <option value="">Day</option>
             </select>
 
+            <!-- Month -->
             <select id="filter-month">
                 <option value="">Month</option>
             </select>
 
+            <!-- Year -->
             <select id="filter-year">
                 <option value="">Year</option>
             </select>
 
+            <!-- Quarter -->
             <select id="filter-quarter">
                 <option value="">Quarter</option>
             </select>
 
+            <!-- Date range + reset -->
             <div class="date-controls">
                 <span>From</span>
                 <input type="date" id="filter-date-start">
@@ -60,11 +64,13 @@
 
         </section>
 
+        <!-- ACTIVE FILTER TAGS (optional placeholder) -->
         <section class="active-filters" id="active-filters"></section>
 
+        <!-- MAIN DASHBOARD CANVAS -->
         <main class="dashboard-grid">
 
-            <!-- LEFT PANEL -->
+            <!-- LEFT: SCORECARD PANEL -->
             <section class="panel left-panel">
                 <div class="panel-header">
                     <h2>Scorecards</h2>
@@ -73,7 +79,7 @@
                 <div id="kpi-container" class="compact-kpi-grid"></div>
             </section>
 
-            <!-- RIGHT PANEL -->
+            <!-- RIGHT: 2x2 GRID OF CHART BOXES -->
             <section class="panel right-panel">
                 <div class="panel-header">
                     <h2>Performance by Business</h2>
@@ -81,7 +87,7 @@
                 </div>
 
                 <div class="right-grid">
-
+                    <!-- Top-left: Answered by Business -->
                     <div class="chart-card">
                         <h3 class="chart-title-sm">Answered Contacts by Business</h3>
                         <div class="chart-inner">
@@ -89,6 +95,7 @@
                         </div>
                     </div>
 
+                    <!-- Top-right: Volume Trend -->
                     <div class="chart-card">
                         <h3 class="chart-title-sm">Volume Trend</h3>
                         <div class="chart-inner">
@@ -96,6 +103,7 @@
                         </div>
                     </div>
 
+                    <!-- Bottom-left: Service Level & Abandon % -->
                     <div class="chart-card">
                         <h3 class="chart-title-sm">Service Level &amp; Abandon %</h3>
                         <div class="chart-inner">
@@ -103,22 +111,26 @@
                         </div>
                     </div>
 
+                    <!-- Bottom-right: AHT by Business -->
                     <div class="chart-card">
                         <h3 class="chart-title-sm">Average Handle Time by Business</h3>
                         <div class="chart-inner">
                             <canvas id="ahtChart"></canvas>
                         </div>
                     </div>
-
                 </div>
             </section>
 
         </main>
 
+        <!-- ALERTS TOAST AREA -->
         <div class="alerts-container" id="alerts"></div>
 
     </div>
 
+    <!-- MAIN SCRIPT -->
     <script src="script.js"></script>
 </body>
 </html>
+
+
