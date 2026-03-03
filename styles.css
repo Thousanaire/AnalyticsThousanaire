@@ -2,230 +2,259 @@
    GLOBAL RESET & APP SHELL
 --------------------------------*/
 * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 html, body {
-    height: 100%;
+  height: 100%;
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-    background: radial-gradient(circle at top left, #111827 0, #020617 45%, #020617 100%);
-    color: #e5e7eb;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  background: radial-gradient(circle at top left, #111827 0, #020617 45%, #020617 100%);
+  color: #e5e7eb;
 }
 
 /* Main canvas */
 .app-shell {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    padding: 16px;
-    gap: 12px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 12px;
 }
 
 /* ------------------------------
-   TOP BAR (unchanged for desktop)
+   TOP BAR
 --------------------------------*/
 .top-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 16px;
-    background: radial-gradient(circle at top left, rgba(55, 65, 81, 0.4), rgba(17, 24, 39, 0.95));
-    border-radius: 14px;
-    border: 1px solid rgba(75, 85, 99, 0.6);
-    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65);
-    backdrop-filter: blur(14px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: radial-gradient(circle at top left, rgba(55, 65, 81, 0.4), rgba(17, 24, 39, 0.95));
+  border-radius: 14px;
+  border: 1px solid rgba(75, 85, 99, 0.6);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(14px);
 }
 
-/* All other desktop styles EXACTLY as you had them */
 .top-left h1 {
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    color: #f9fafb;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #f9fafb;
 }
 
 .subtitle {
-    display: block;
-    font-size: 12px;
-    color: #9ca3af;
-    margin-top: 2px;
+  display: block;
+  font-size: 12px;
+  color: #9ca3af;
+  margin-top: 2px;
 }
-
-.status-pill, .status-pill.loading, .status-pill.error {
-    /* Your existing status pill styles */
-    padding: 6px 14px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 500;
-}
-
-.status-pill { color: #d1fae5; background: linear-gradient(135deg, #10b981, #047857); box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4); }
-.status-pill.loading { color: #fef3c7; background: linear-gradient(135deg, #f59e0b, #b45309); box-shadow: 0 6px 18px rgba(245, 158, 11, 0.4); }
-.status-pill.error { color: #fee2e2; background: linear-gradient(135deg, #ef4444, #b91c1c); box-shadow: 0 6px 18px rgba(239, 68, 68, 0.4); }
 
 /* ------------------------------
-   DESKTOP LAYOUT (unchanged)
+   CONTROL BAR
 --------------------------------*/
-.control-bar, .active-filters, .dashboard-grid, .panel, .left-panel, .right-panel {
-    /* All your existing desktop styles stay exactly the same */
+.control-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, rgba(31, 41, 55, 0.9), rgba(15, 23, 42, 0.9));
+  border-radius: 14px;
+  border: 1px solid rgba(75, 85, 99, 0.7);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6);
 }
 
+.control-bar select {
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid #374151;
+  background: #020617;
+  color: #e5e7eb;
+  font-size: 12px;
+  min-width: 110px;
+  cursor: pointer;
+}
+
+.date-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(55, 65, 81, 0.8);
+}
+
+.date-controls input {
+  padding: 5px 9px;
+  border-radius: 999px;
+  border: 1px solid #4b5563;
+  background: #020617;
+  color: #f9fafb;
+  font-size: 11px;
+  min-width: 120px;
+}
+
+#filter-reset {
+  padding: 6px 14px;
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: #eff6ff;
+  border: none;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ------------------------------
+   DASHBOARD GRID
+--------------------------------*/
 .dashboard-grid {
-    display: grid;
-    grid-template-columns: 380px minmax(0, 1fr);
-    gap: 16px;
-    flex: 1;
-    min-height: 0;
-    margin-top: 4px;
+  display: grid;
+  grid-template-columns: 380px minmax(0, 1fr);
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+  margin-top: 4px;
 }
 
-/* All your existing panel, kpi-card, right-grid styles stay EXACTLY the same */
-.compact-kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; overflow-y: auto; padding-right: 2px; }
-.kpi-card { /* your existing kpi styles */ }
-.right-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(2, minmax(0, 1fr)); gap: 10px; flex: 1; min-height: 0; }
-.chart-card { /* your existing chart styles */ }
-.chart-inner { position: relative; flex: 1; min-height: 0; }
-.chart-inner canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.panel {
+  background: radial-gradient(circle at top left, rgba(31, 41, 55, 0.9), rgba(15, 23, 42, 0.98));
+  border-radius: 18px;
+  border: 1px solid rgba(75, 85, 99, 0.8);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.9);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* KPI GRID */
+.compact-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+/* RIGHT GRID */
+.right-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+/* Chart card */
+.chart-card {
+  background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.95), rgba(3, 7, 18, 0.98));
+  border-radius: 14px;
+  padding: 8px;
+  border: 1px solid rgba(55, 65, 81, 0.9);
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.9);
+  display: flex;
+  flex-direction: column;
+}
+
+.chart-title-sm {
+  font-size: 12px;
+  font-weight: 600;
+  color: #e5e7eb;
+  margin-bottom: 4px;
+}
+
+.chart-inner {
+  position: relative;
+  flex: 1;
+}
+
+.chart-inner canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
 
 /* ------------------------------
-   MOBILE: EXACTLY LIKE YOUR SCREENSHOT
+   ALERTS
 --------------------------------*/
+.alerts-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  max-width: 320px;
+  z-index: 100;
+}
+
+/* ------------------------------
+   RESPONSIVE
+--------------------------------*/
+@media (max-width: 992px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  .right-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+}
+
 @media (max-width: 768px) {
-    /* Perfect screenshot proportions */
-    .app-shell {
-        padding: 8px;
-        gap: 8px;
-    }
-    
-    .top-bar {
-        padding: 8px 12px;
-        border-radius: 12px;
-    }
-    
-    .top-left h1 {
-        font-size: 18px;
-    }
-    
-    .subtitle {
-        font-size: 10px;
-    }
-    
-    /* Controls wrap perfectly like screenshot */
-    .control-bar {
-        padding: 8px 12px;
-        gap: 6px;
-        flex-wrap: wrap;
-    }
-    
-    .control-bar select {
-        padding: 6px 10px;
-        font-size: 11px;
-        min-width: 75px;
-    }
-    
-    .date-controls {
-        padding: 4px 8px;
-        gap: 4px;
-    }
-    
-    .date-controls input {
-        padding: 4px 6px;
-        font-size: 10px;
-        min-width: 85px;
-    }
-    
-    /* DASHBOARD: Screenshot proportions */
-    .dashboard-grid {
-        grid-template-columns: 42% 58%;  /* Exact screenshot ratio */
-        gap: 8px;
-        margin-top: 2px;
-    }
-    
-    /* Left panel - screenshot width */
-    .left-panel {
-        padding: 10px;
-    }
-    
-    .panel-header {
-        margin-bottom: 8px;
-    }
-    
-    .panel-header h2 {
-        font-size: 12px;
-    }
-    
-    .panel-subtitle {
-        font-size: 10px;
-    }
-    
-    /* KPIs - screenshot grid */
-    .compact-kpi-grid {
-        grid-template-columns: repeat(2, 1fr);  /* 2x3 like screenshot */
-        gap: 6px;
-        padding-right: 1px;
-    }
-    
-    .kpi-card {
-        padding: 8px 6px 10px 6px;
-        border-radius: 10px;
-    }
-    
-    .kpi-card h3 {
-        font-size: 9px;
-    }
-    
-    .kpi-card p {
-        font-size: 16px;
-    }
-    
-    /* Right charts - screenshot perfect squares */
-    .right-panel {
-        padding: 10px;
-    }
-    
-    .right-grid {
-        gap: 6px;
-    }
-    
-    .chart-card {
-        padding: 6px 4px 8px 4px;
-        border-radius: 12px;
-    }
-    
-    .chart-title-sm {
-        font-size: 10px;
-        margin-bottom: 2px;
-    }
-    
-    .chart-inner {
-        aspect-ratio: 1;  /* Perfect squares like screenshot */
-    }
+  .app-shell {
+    padding: 8px;
+    gap: 8px;
+  }
+
+  .top-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 8px 12px;
+    border-radius: 12px;
+  }
+
+  .top-left h1 {
+    font-size: 18px;
+  }
+
+  .subtitle {
+    font-size: 10px;
+  }
+
+  .control-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 8px 12px;
+    gap: 6px;
+  }
+
+  .control-bar select,
+  .date-controls input {
+    width: 100%;
+    min-width: unset;
+    font-size: 11px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 42% 58%; /* balanced ratio for mobile */
+    gap: 8px;
+  }
+
+  .compact-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+
+  .chart-inner {
+    aspect-ratio: 1; /* square charts on mobile */
+  }
 }
 
-/* Landscape - scales up proportionally */
-@media (max-width: 768px) and (orientation: landscape) {
-    .dashboard-grid {
-        grid-template-columns: 38% 62%;  /* Slightly wider left panel */
-    }
-    
-    .compact-kpi-grid {
-        grid-template-columns: repeat(3, 1fr);  /* 3 across in landscape */
-    }
-    
-    .kpi-card p {
-        font-size: 18px;
-    }
-    
-    .chart-title-sm {
-        font-size: 11px;
-    }
+@media (max-width: 480px) {
+  .top-left h1 { font-size: 16px; }
+  .chart-title-sm { font-size: 10px; }
 }
-
-/* All your existing alerts, animations, etc. stay the same */
-.alerts-container { position: fixed; bottom: 16px; right: 16px; max-width: 300px; z-index: 100; }
-@keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
